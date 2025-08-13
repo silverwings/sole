@@ -30,26 +30,28 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
   // Carica prodotto e prodotti correlati
   useEffect(() => {
-    loadProductData()
+    loadData()
   }, [resolvedParams.id])
 
-  const loadProductData = async () => {
+  const loadData = async () => {
     try {
       setLoading(true)
       setError(null)
       
-      const [productData, relatedData] = await Promise.all([
-        getProductById(resolvedParams.id),
-        getRelatedProducts(resolvedParams.id, 4)
-      ])
+      // Prima prova a caricare come prodotto
+      const productData = await getProductById(resolvedParams.id)
       
-      if (!productData) {
-        setError('Prodotto non trovato')
+      if (productData) {
+        // È un prodotto
+        const relatedData = await getRelatedProducts(resolvedParams.id, 4)
+        setProduct(productData)
+        setRelatedProducts(relatedData)
+      } else {
+        // Potrebbe essere una categoria, reindirizza
+        window.location.href = `/prodotti?categoria=${resolvedParams.id}`
         return
       }
       
-      setProduct(productData)
-      setRelatedProducts(relatedData)
     } catch (err) {
       setError('Errore nel caricamento del prodotto')
       console.error(err)
@@ -118,7 +120,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         <span className="mx-2">/</span>
         <Link href="/prodotti" className="hover:text-foreground">Prodotti</Link>
         <span className="mx-2">/</span>
-        <span className="capitalize">{product.category}</span>
+        <Link href={`/prodotti?categoria=${product.category}`} className="hover:text-foreground capitalize">
+          {product.category}
+        </Link>
         <span className="mx-2">/</span>
         <span className="text-foreground">{product.name}</span>
       </nav>

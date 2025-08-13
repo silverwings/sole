@@ -23,10 +23,20 @@ export default function ProductsPage() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState({ min: 0, max: 2000 })
 
-  // Carica prodotti e categorie
+  // Carica prodotti quando cambiano filtri, sort o pagina
   useEffect(() => {
     loadData()
   }, [filters, sort, currentPage])
+
+  // Leggi parametro categoria dall'URL solo al mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const categoryParam = urlParams.get('categoria')
+    
+    if (categoryParam) {
+      setFilters(prev => ({ ...prev, category: categoryParam }))
+    }
+  }, []) // Solo al mount!
 
   // Carica categorie al mount
   useEffect(() => {
