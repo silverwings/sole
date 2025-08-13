@@ -1,22 +1,28 @@
 "use client"
 
 import { Button } from '@/components/ui/button'
-import { useState } from 'react'
-import { Minus, Plus, Heart, Share2, Star } from 'lucide-react'
+import { useState, use, useCallback } from 'react'
+import { Minus, Plus, Heart, Share2, Star, ShoppingCart } from 'lucide-react'
+import { useCart } from '@/contexts/CartContext'
 
 interface ProductDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function ProductDetailPage({ params }: ProductDetailPageProps) {
+  const resolvedParams = use(params)
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
+  const [selectedColor, setSelectedColor] = useState(0)
+  const [isAdding, setIsAdding] = useState(false)
+  
+  const { addItem } = useCart()
 
   // Mock product data
   const product = {
-    id: params.id,
+    id: resolvedParams.id,
     name: "Smartphone Premium XYZ",
     price: 899.99,
     originalPrice: 999.99,
@@ -44,6 +50,35 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const handleQuantityChange = (change: number) => {
     setQuantity(Math.max(1, quantity + change))
   }
+
+  const handleAddToCart = useCallback(() => {
+    console.log('🚀 Aggiungendo al carrello - Quantità:', quantity)
+    setIsAdding(true)
+    
+    const itemToAdd = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+      color: product.colors[selectedColor],
+      inStock: product.inStock
+    }
+    
+    console.log('📦 Item da aggiungere:', itemToAdd)
+    console.log('🔢 Quantità effettiva:', quantity)
+    
+    // Aggiungi al carrello immediatamente
+    console.log('🎯 Chiamando addItem con quantità:', quantity)
+    addItem(itemToAdd, quantity)
+    
+    // Delay solo per l'effetto visivo
+    setTimeout(() => {
+      setIsAdding(false)
+      // Reset della quantità dopo l'aggiunta
+      setQuantity(1)
+    }, 300)
+    
+  }, [product.id, product.name, product.price, product.images, selectedColor, product.inStock, quantity, addItem])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -142,7 +177,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               {product.colors.map((color, index) => (
                 <button
                   key={color}
-                  className="px-3 py-2 border rounded-md text-sm hover:border-primary transition-colors"
+                  onClick={() => setSelectedColor(index)}
+                  className={`px-3 py-2 border rounded-md text-sm transition-colors ${
+                    selectedColor === index 
+                      ? 'border-primary bg-primary/10 text-primary' 
+                      : 'hover:border-primary'
+                  }`}
                 >
                   {color}
                 </button>
@@ -163,7 +203,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
-                <span className="w-12 text-center">{quantity}</span>
+                <span className="w-12 text-center font-semibold">{quantity}</span>
                 <Button
                   variant="outline"
                   size="icon"
@@ -172,11 +212,27 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
+              <p className="text-xs text-muted-foreground mt-1">Quantità selezionata: {quantity}</p>
             </div>
 
             <div className="flex space-x-4">
-              <Button className="flex-1" size="lg">
-                Aggiungi al Carrello
+              <Button 
+                className="flex-1" 
+                size="lg"
+                onClick={handleAddToCart}
+                disabled={isAdding || !product.inStock}
+              >
+                {isAdding ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                    Aggiungendo...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Aggiungi {quantity > 1 ? `${quantity} ` : ''}al Carrello
+                  </>
+                )}
               </Button>
               <Button variant="outline" size="lg">
                 <Heart className="h-4 w-4" />

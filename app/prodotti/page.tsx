@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button'
+import { QuickAddButton } from '@/components/ui/quick-add-button'
 import Link from 'next/link'
 import { Filter, Grid3X3, List } from 'lucide-react'
 
@@ -178,66 +179,79 @@ export default function ProductsPage() {
 
           {/* Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 12 }, (_, i) => (
-              <Link key={i + 1} href={`/prodotti/${i + 1}`}>
-                <div className="group cursor-pointer">
-                  <div className="bg-muted rounded-lg aspect-square mb-4 flex items-center justify-center group-hover:bg-muted/80 transition-colors relative overflow-hidden">
-                    <span className="text-muted-foreground">Prodotto {i + 1}</span>
-                    
-                    {/* Badge offerta casuale */}
-                    {Math.random() > 0.7 && (
-                      <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                        -20%
-                      </div>
-                    )}
-                    
-                    {/* Badge nuovo arrivo casuale */}
-                    {Math.random() > 0.8 && (
-                      <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
-                        Nuovo
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h3 className="font-medium mb-1 group-hover:text-primary transition-colors line-clamp-2">
-                      {getProductName(i)}
-                    </h3>
-                    
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {getProductDescription(i)}
-                    </p>
-                    
-                    {/* Rating */}
-                    <div className="flex items-center space-x-1">
-                      <div className="flex text-yellow-400 text-sm">
-                        {'★'.repeat(Math.floor(Math.random() * 2) + 4)}
-                        {'☆'.repeat(5 - (Math.floor(Math.random() * 2) + 4))}
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        ({Math.floor(Math.random() * 200) + 10})
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-semibold">
-                          €{(Math.random() * 200 + 20).toFixed(2)}
-                        </span>
+            {Array.from({ length: 12 }, (_, i) => {
+              const price = Math.random() * 200 + 20
+              const product = {
+                id: (i + 1).toString(),
+                name: getProductName(i),
+                price: price,
+                image: `/placeholder-image-${i + 1}.jpg`
+              }
+              
+              return (
+                <div key={i + 1} className="group">
+                  <Link href={`/prodotti/${i + 1}`}>
+                    <div className="cursor-pointer">
+                      <div className="bg-muted rounded-lg aspect-square mb-4 flex items-center justify-center group-hover:bg-muted/80 transition-colors relative overflow-hidden">
+                        <span className="text-muted-foreground">Prodotto {i + 1}</span>
+                        
+                        {/* Badge offerta casuale */}
                         {Math.random() > 0.7 && (
-                          <span className="text-sm text-muted-foreground line-through">
-                            €{(Math.random() * 50 + 250).toFixed(2)}
-                          </span>
+                          <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                            -20%
+                          </div>
+                        )}
+                        
+                        {/* Badge nuovo arrivo casuale */}
+                        {Math.random() > 0.8 && (
+                          <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                            Nuovo
+                          </div>
                         )}
                       </div>
-                      <Button variant="outline" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        Aggiungi
-                      </Button>
+                      
+                      <div className="space-y-2">
+                        <h3 className="font-medium mb-1 group-hover:text-primary transition-colors line-clamp-2">
+                          {product.name}
+                        </h3>
+                        
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {getProductDescription(i)}
+                        </p>
+                        
+                        {/* Rating */}
+                        <div className="flex items-center space-x-1">
+                          <div className="flex text-yellow-400 text-sm">
+                            {'★'.repeat(Math.floor(Math.random() * 2) + 4)}
+                            {'☆'.repeat(5 - (Math.floor(Math.random() * 2) + 4))}
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            ({Math.floor(Math.random() * 200) + 10})
+                          </span>
+                        </div>
+                      </div>
                     </div>
+                  </Link>
+                  
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-semibold">
+                        €{product.price.toFixed(2)}
+                      </span>
+                      {Math.random() > 0.7 && (
+                        <span className="text-sm text-muted-foreground line-through">
+                          €{(product.price + Math.random() * 50).toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                    <QuickAddButton 
+                      product={product}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    />
                   </div>
                 </div>
-              </Link>
-            ))}
+              )
+            })}
           </div>
 
           {/* Pagination */}
