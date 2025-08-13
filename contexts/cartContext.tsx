@@ -45,8 +45,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items])
 
   const addItem = (newItem: Omit<CartItem, 'quantity'>, quantity: number) => {
-    console.log('🛒 Context addItem ricevuto:', { newItem: newItem.name, quantity })
-    
     setItems(currentItems => {
       // Crea una chiave unica per l'item (id + colore)
       const itemKey = `${newItem.id}-${newItem.color || 'default'}`
@@ -59,13 +57,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (existingItemIndex >= 0) {
         // Se esiste, aumenta la quantità
         const updatedItems = [...currentItems]
-        const oldQty = updatedItems[existingItemIndex].quantity
         updatedItems[existingItemIndex].quantity += quantity
-        console.log(`➕ Aggiornato item esistente: ${oldQty} + ${quantity} = ${updatedItems[existingItemIndex].quantity}`)
         return updatedItems
       } else {
         // Se non esiste, aggiungi nuovo item con la quantità specificata
-        console.log(`✨ Creato nuovo item con quantità: ${quantity}`)
         return [...currentItems, { ...newItem, quantity: quantity }]
       }
     })
@@ -84,11 +79,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
 
     setItems(currentItems =>
-      currentItems.map(item =>
-        `${item.id}-${item.color || 'default'}` === itemKey 
-          ? { ...item, quantity } 
-          : item
-      )
+      currentItems.map(item => {
+        const currentItemKey = `${item.id}-${item.color || 'default'}`
+        if (currentItemKey === itemKey) {
+          return { ...item, quantity }
+        }
+        return item
+      })
     )
   }
 

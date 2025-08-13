@@ -52,7 +52,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   }
 
   const handleAddToCart = useCallback(() => {
-    console.log('🚀 Aggiungendo al carrello - Quantità:', quantity)
     setIsAdding(true)
     
     const itemToAdd = {
@@ -64,11 +63,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       inStock: product.inStock
     }
     
-    console.log('📦 Item da aggiungere:', itemToAdd)
-    console.log('🔢 Quantità effettiva:', quantity)
-    
     // Aggiungi al carrello immediatamente
-    console.log('🎯 Chiamando addItem con quantità:', quantity)
     addItem(itemToAdd, quantity)
     
     // Delay solo per l'effetto visivo
@@ -212,7 +207,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Quantità selezionata: {quantity}</p>
             </div>
 
             <div className="flex space-x-4">
@@ -230,7 +224,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 ) : (
                   <>
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    Aggiungi {quantity > 1 ? `${quantity} ` : ''}al Carrello
+                    Aggiungi al Carrello
                   </>
                 )}
               </Button>

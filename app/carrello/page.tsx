@@ -160,10 +160,6 @@ export default function CartPage() {
                   Procedi al Checkout
                 </Button>
               </Link>
-              
-              <Button variant="outline" className="w-full">
-                Salva per dopo
-              </Button>
             </div>
 
             {/* Security Info */}
