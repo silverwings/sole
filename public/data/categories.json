@@ -1,0 +1,68 @@
+{
+  "categories": [
+    {
+      "id": "elettronica",
+      "name": "Elettronica",
+      "slug": "elettronica",
+      "description": "Smartphone, tablet e dispositivi elettronici",
+      "image": "/category-elettronica.jpg",
+      "productCount": 2
+    },
+    {
+      "id": "audio",
+      "name": "Audio",
+      "slug": "audio",
+      "description": "Cuffie, speaker e dispositivi audio",
+      "image": "/category-audio.jpg",
+      "productCount": 2
+    },
+    {
+      "id": "computer",
+      "name": "Computer",
+      "slug": "computer",
+      "description": "Laptop, accessori e periferiche",
+      "image": "/category-computer.jpg",
+      "productCount": 2
+    },
+    {
+      "id": "gaming",
+      "name": "Gaming",
+      "slug": "gaming",
+      "description": "Mouse, tastiere e accessori gaming",
+      "image": "/category-gaming.jpg",
+      "productCount": 2
+    },
+    {
+      "id": "wearable",
+      "name": "Wearable",
+      "slug": "wearable",
+      "description": "Smartwatch e dispositivi indossabili",
+      "image": "/category-wearable.jpg",
+      "productCount": 1
+    },
+    {
+      "id": "tablet",
+      "name": "Tablet",
+      "slug": "tablet",
+      "description": "Tablet e accessori",
+      "image": "/category-tablet.jpg",
+      "productCount": 1
+    },
+    {
+      "id": "fotografia",
+      "name": "Fotografia",
+      "slug": "fotografia",
+      "description": "Fotocamere e accessori fotografici",
+      "image": "/category-fotografia.jpg",
+      "productCount": 1
+    },
+    {
+      "id": "accessori",
+      "name": "Accessori",
+      "slug": "accessori",
+      "description": "Caricatori, power bank e accessori vari",
+      "image": "/category-accessori.jpg",
+      "productCount": 2
+    }
+  ]
+}

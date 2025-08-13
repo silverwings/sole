@@ -1,9 +1,12 @@
 "use client"
 
 import { Button } from '@/components/ui/button'
-import { useState, use, useCallback } from 'react'
-import { Minus, Plus, Heart, Share2, Star, ShoppingCart } from 'lucide-react'
+import { useState, use, useCallback, useEffect } from 'react'
+import { Minus, Plus, Heart, Share2, Star, ShoppingCart, Loader2 } from 'lucide-react'
 import { useCart } from '@/contexts/CartContext'
+import { Product } from '@/lib/types'
+import { getProductById, getRelatedProducts } from '@/lib/api'
+import Link from 'next/link'
 
 interface ProductDetailPageProps {
   params: Promise<{
@@ -13,6 +16,11 @@ interface ProductDetailPageProps {
 
 export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const resolvedParams = use(params)
+  const [product, setProduct] = useState<Product | null>(null)
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
   const [selectedColor, setSelectedColor] = useState(0)
@@ -20,31 +28,34 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   
   const { addItem } = useCart()
 
-  // Mock product data
-  const product = {
-    id: resolvedParams.id,
-    name: "Smartphone Premium XYZ",
-    price: 899.99,
-    originalPrice: 999.99,
-    rating: 4.5,
-    reviews: 127,
-    description: "Un smartphone all'avanguardia con caratteristiche premium per l'utente moderno. Display OLED da 6.7 pollici, processore octa-core, tripla fotocamera con AI e batteria a lunga durata.",
-    features: [
-      "Display OLED 6.7\" 120Hz",
-      "Processore Octa-core 3.2GHz",
-      "12GB RAM + 256GB Storage",
-      "Tripla fotocamera 108MP",
-      "Batteria 5000mAh",
-      "Ricarica wireless 50W"
-    ],
-    images: [
-      "/placeholder-image-1.jpg",
-      "/placeholder-image-2.jpg", 
-      "/placeholder-image-3.jpg",
-      "/placeholder-image-4.jpg"
-    ],
-    colors: ["Nero", "Bianco", "Blu", "Rosso"],
-    inStock: true
+  // Carica prodotto e prodotti correlati
+  useEffect(() => {
+    loadProductData()
+  }, [resolvedParams.id])
+
+  const loadProductData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const [productData, relatedData] = await Promise.all([
+        getProductById(resolvedParams.id),
+        getRelatedProducts(resolvedParams.id, 4)
+      ])
+      
+      if (!productData) {
+        setError('Prodotto non trovato')
+        return
+      }
+      
+      setProduct(productData)
+      setRelatedProducts(relatedData)
+    } catch (err) {
+      setError('Errore nel caricamento del prodotto')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleQuantityChange = (change: number) => {
@@ -52,6 +63,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   }
 
   const handleAddToCart = useCallback(() => {
+    if (!product) return
+    
     setIsAdding(true)
     
     const itemToAdd = {
@@ -73,17 +86,39 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       setQuantity(1)
     }, 300)
     
-  }, [product.id, product.name, product.price, product.images, selectedColor, product.inStock, quantity, addItem])
+  }, [product, selectedColor, quantity, addItem])
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-16">
+        <div className="flex justify-center items-center">
+          <Loader2 className="h-8 w-8 animate-spin mr-2" />
+          <span>Caricamento prodotto...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !product) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <p className="text-red-600 mb-4">{error || 'Prodotto non trovato'}</p>
+        <Link href="/prodotti">
+          <Button>Torna ai Prodotti</Button>
+        </Link>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Breadcrumb */}
       <nav className="text-sm text-muted-foreground mb-8">
-        <span>Home</span>
+        <Link href="/" className="hover:text-foreground">Home</Link>
         <span className="mx-2">/</span>
-        <span>Prodotti</span>
+        <Link href="/prodotti" className="hover:text-foreground">Prodotti</Link>
         <span className="mx-2">/</span>
-        <span>Elettronica</span>
+        <span className="capitalize">{product.category}</span>
         <span className="mx-2">/</span>
         <span className="text-foreground">{product.name}</span>
       </nav>
@@ -115,6 +150,16 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         {/* Product Info */}
         <div className="space-y-6">
           <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm text-primary font-medium capitalize">{product.brand}</span>
+              {product.isNew && (
+                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Nuovo</span>
+              )}
+              {product.isOnSale && (
+                <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">In Offerta</span>
+              )}
+            </div>
+            
             <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
             
             {/* Rating */}
@@ -136,13 +181,17 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
             {/* Price */}
             <div className="flex items-center space-x-3 mb-6">
-              <span className="text-3xl font-bold">€{product.price}</span>
-              <span className="text-xl text-muted-foreground line-through">
-                €{product.originalPrice}
-              </span>
-              <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
-                -10%
-              </span>
+              <span className="text-3xl font-bold">€{product.price.toFixed(2)}</span>
+              {product.originalPrice && product.originalPrice > product.price && (
+                <>
+                  <span className="text-xl text-muted-foreground line-through">
+                    €{product.originalPrice.toFixed(2)}
+                  </span>
+                  <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
+                    -{product.discount}%
+                  </span>
+                </>
+              )}
             </div>
           </div>
 
@@ -165,25 +214,42 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             </ul>
           </div>
 
-          {/* Color Selection */}
-          <div>
-            <h3 className="font-semibold mb-2">Colore</h3>
-            <div className="flex space-x-2">
-              {product.colors.map((color, index) => (
-                <button
-                  key={color}
-                  onClick={() => setSelectedColor(index)}
-                  className={`px-3 py-2 border rounded-md text-sm transition-colors ${
-                    selectedColor === index 
-                      ? 'border-primary bg-primary/10 text-primary' 
-                      : 'hover:border-primary'
-                  }`}
-                >
-                  {color}
-                </button>
-              ))}
+          {/* Specifications */}
+          {product.specifications && (
+            <div>
+              <h3 className="font-semibold mb-2">Specifiche Tecniche</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                {Object.entries(product.specifications).map(([key, value]) => (
+                  <div key={key} className="flex justify-between border-b pb-1">
+                    <span className="text-muted-foreground">{key}:</span>
+                    <span className="font-medium">{value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Color Selection */}
+          {product.colors.length > 0 && (
+            <div>
+              <h3 className="font-semibold mb-2">Colore</h3>
+              <div className="flex space-x-2">
+                {product.colors.map((color, index) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(index)}
+                    className={`px-3 py-2 border rounded-md text-sm transition-colors ${
+                      selectedColor === index 
+                        ? 'border-primary bg-primary/10 text-primary' 
+                        : 'hover:border-primary'
+                    }`}
+                  >
+                    {color}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Quantity and Add to Cart */}
           <div className="space-y-4">
@@ -239,8 +305,10 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
           {/* Stock Status */}
           <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-sm text-green-600">Disponibile</span>
+            <div className={`w-2 h-2 rounded-full ${product.inStock ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <span className={`text-sm ${product.inStock ? 'text-green-600' : 'text-red-600'}`}>
+              {product.inStock ? 'Disponibile' : 'Non disponibile'}
+            </span>
           </div>
 
           {/* Shipping Info */}
@@ -257,19 +325,83 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
       {/* Reviews Section - Placeholder */}
       <div className="mt-16">
-        <h2 className="text-2xl font-bold mb-6">Recensioni Clienti</h2>
+        <h2 className="text-2xl font-bold mb-6">Recensioni Clienti ({product.reviews})</h2>
         <div className="bg-muted/50 p-8 rounded-lg text-center">
-          <p className="text-muted-foreground">Sezione recensioni - In arrivo</p>
+          <div className="flex items-center justify-center space-x-2 mb-2">
+            <div className="flex text-yellow-400">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={`h-5 w-5 ${
+                    star <= product.rating ? 'fill-yellow-400' : ''
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-lg font-semibold">{product.rating}/5</span>
+          </div>
+          <p className="text-muted-foreground">Sistema recensioni in sviluppo</p>
         </div>
       </div>
 
-      {/* Related Products - Placeholder */}
-      <div className="mt-16">
-        <h2 className="text-2xl font-bold mb-6">Prodotti Correlati</h2>
-        <div className="bg-muted/50 p-8 rounded-lg text-center">
-          <p className="text-muted-foreground">Prodotti correlati - In arrivo</p>
+      {/* Related Products */}
+      {relatedProducts.length > 0 && (
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold mb-6">Prodotti Correlati</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {relatedProducts.map((relatedProduct) => (
+              <Link key={relatedProduct.id} href={`/prodotti/${relatedProduct.id}`}>
+                <div className="group cursor-pointer">
+                  <div className="bg-muted rounded-lg aspect-square mb-4 flex items-center justify-center group-hover:bg-muted/80 transition-colors relative overflow-hidden">
+                    <span className="text-muted-foreground text-center px-2">
+                      {relatedProduct.name}
+                    </span>
+                    
+                    {relatedProduct.isOnSale && relatedProduct.discount && (
+                      <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                        -{relatedProduct.discount}%
+                      </div>
+                    )}
+                    
+                    {relatedProduct.isNew && (
+                      <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                        Nuovo
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h3 className="font-medium group-hover:text-primary transition-colors line-clamp-2">
+                      {relatedProduct.name}
+                    </h3>
+                    
+                    <div className="flex items-center space-x-1">
+                      <div className="flex text-yellow-400 text-sm">
+                        {'★'.repeat(Math.floor(relatedProduct.rating))}
+                        {'☆'.repeat(5 - Math.floor(relatedProduct.rating))}
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        ({relatedProduct.reviews})
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <span className="font-semibold">
+                        €{relatedProduct.price.toFixed(2)}
+                      </span>
+                      {relatedProduct.originalPrice && relatedProduct.originalPrice > relatedProduct.price && (
+                        <span className="text-sm text-muted-foreground line-through">
+                          €{relatedProduct.originalPrice.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

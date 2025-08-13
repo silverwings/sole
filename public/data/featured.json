@@ -1,0 +1,40 @@
+{
+  "featured": [
+    {
+      "productId": "1",
+      "title": "Smartphone dell'Anno",
+      "description": "Il nuovo flagship con tecnologia all'avanguardia",
+      "badge": "OFFERTA SPECIALE"
+    },
+    {
+      "productId": "7",
+      "title": "Fotografia Professionale",
+      "description": "Cattura ogni momento con qualità superiore",
+      "badge": "SCONTO 11%"
+    },
+    {
+      "productId": "4",
+      "title": "Produttività Senza Limiti",
+      "description": "Laptop ultrabook per professionisti",
+      "badge": "BESTSELLER"
+    },
+    {
+      "productId": "2",
+      "title": "Audio Premium",
+      "description": "Esperienza sonora immersiva",
+      "badge": "NOVITÀ"
+    },
+    {
+      "productId": "9",
+      "title": "Gaming di Alto Livello",
+      "description": "Tastiera meccanica per veri gamer",
+      "badge": "NUOVO ARRIVO"
+    },
+    {
+      "productId": "5",
+      "title": "Versatilità Mobile",
+      "description": "Tablet per lavoro e intrattenimento",
+      "badge": "POPOLARE"
+    }
+  ]
+}

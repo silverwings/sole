@@ -1,0 +1,452 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "name": "Smartphone Premium Pro Max",
+      "price": 899.99,
+      "originalPrice": 999.99,
+      "description": "Un smartphone all'avanguardia con caratteristiche premium per l'utente moderno. Display OLED da 6.7 pollici, processore octa-core, tripla fotocamera con AI e batteria a lunga durata.",
+      "shortDescription": "Display OLED 6.7\", processore octa-core, tripla fotocamera con AI",
+      "rating": 4.5,
+      "reviews": 127,
+      "category": "elettronica",
+      "brand": "TechPro",
+      "images": [
+        "/placeholder-smartphone-1.jpg",
+        "/placeholder-smartphone-2.jpg",
+        "/placeholder-smartphone-3.jpg",
+        "/placeholder-smartphone-4.jpg"
+      ],
+      "colors": ["Nero", "Bianco", "Blu", "Rosso"],
+      "features": [
+        "Display OLED 6.7\" 120Hz",
+        "Processore Octa-core 3.2GHz",
+        "12GB RAM + 256GB Storage",
+        "Tripla fotocamera 108MP",
+        "Batteria 5000mAh",
+        "Ricarica wireless 50W"
+      ],
+      "inStock": true,
+      "isNew": false,
+      "isOnSale": true,
+      "discount": 10,
+      "tags": ["smartphone", "premium", "5g", "fotocamera"],
+      "specifications": {
+        "Display": "6.7\" OLED 120Hz",
+        "Processore": "Octa-core 3.2GHz",
+        "RAM": "12GB",
+        "Storage": "256GB",
+        "Fotocamera": "108MP + 12MP + 8MP",
+        "Batteria": "5000mAh",
+        "OS": "Android 14"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Cuffie Wireless Noise Cancelling",
+      "price": 299.99,
+      "description": "Cuffie wireless di alta qualità con cancellazione attiva del rumore, perfette per musica, chiamate e lavoro. Autonomia di 30 ore e ricarica rapida.",
+      "shortDescription": "Audio di qualità superiore con cancellazione attiva del rumore",
+      "rating": 4.7,
+      "reviews": 89,
+      "category": "audio",
+      "brand": "SoundMax",
+      "images": [
+        "/placeholder-headphones-1.jpg",
+        "/placeholder-headphones-2.jpg",
+        "/placeholder-headphones-3.jpg"
+      ],
+      "colors": ["Nero", "Bianco", "Argento"],
+      "features": [
+        "Cancellazione attiva del rumore",
+        "Audio Hi-Fi wireless",
+        "30 ore di autonomia",
+        "Ricarica rapida 15 min = 3 ore",
+        "Controlli touch",
+        "Microfono integrato"
+      ],
+      "inStock": true,
+      "isNew": true,
+      "isOnSale": false,
+      "tags": ["cuffie", "wireless", "noise-cancelling", "audio"],
+      "specifications": {
+        "Tipo": "Over-ear wireless",
+        "Driver": "40mm dinamici",
+        "Frequenza": "20Hz - 20kHz",
+        "Autonomia": "30 ore",
+        "Ricarica": "USB-C",
+        "Peso": "250g",
+        "Bluetooth": "5.3"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Smartwatch Fitness Tracker",
+      "price": 199.99,
+      "description": "Smartwatch avanzato per fitness e salute con GPS integrato, monitoraggio cardiaco 24/7, resistente all'acqua e oltre 100 modalità sport.",
+      "shortDescription": "Monitor frequenza cardiaca, GPS, resistente all'acqua",
+      "rating": 4.3,
+      "reviews": 203,
+      "category": "wearable",
+      "brand": "FitTech",
+      "images": [
+        "/placeholder-smartwatch-1.jpg",
+        "/placeholder-smartwatch-2.jpg",
+        "/placeholder-smartwatch-3.jpg"
+      ],
+      "colors": ["Nero", "Rosa", "Argento", "Oro"],
+      "features": [
+        "GPS integrato",
+        "Monitoraggio cardiaco 24/7",
+        "100+ modalità sport",
+        "Resistente all'acqua 5ATM",
+        "7 giorni di autonomia",
+        "Notifiche smartphone"
+      ],
+      "inStock": true,
+      "isNew": false,
+      "isOnSale": false,
+      "tags": ["smartwatch", "fitness", "gps", "salute"],
+      "specifications": {
+        "Display": "1.4\" AMOLED",
+        "Batteria": "7 giorni",
+        "Resistenza": "5ATM + IP68",
+        "Sensori": "Cardio, GPS, Accelerometro",
+        "Compatibilità": "iOS/Android",
+        "Peso": "45g"
+      }
+    },
+    {
+      "id": "4",
+      "name": "Laptop UltraBook 15.6\"",
+      "price": 1299.99,
+      "originalPrice": 1499.99,
+      "description": "Laptop ultra-sottile e potente per lavoro e creatività. Processore Intel i7, 16GB RAM, SSD 512GB e display 4K per prestazioni eccezionali.",
+      "shortDescription": "Intel i7, 16GB RAM, SSD 512GB, schermo 4K",
+      "rating": 4.6,
+      "reviews": 156,
+      "category": "computer",
+      "brand": "TechBook",
+      "images": [
+        "/placeholder-laptop-1.jpg",
+        "/placeholder-laptop-2.jpg",
+        "/placeholder-laptop-3.jpg"
+      ],
+      "colors": ["Grigio Siderale", "Argento", "Oro Rosa"],
+      "features": [
+        "Intel Core i7 12a gen",
+        "16GB RAM DDR5",
+        "SSD NVMe 512GB",
+        "Display 4K 15.6\"",
+        "Scheda grafica dedicata",
+        "Fino a 12 ore autonomia"
+      ],
+      "inStock": true,
+      "isNew": false,
+      "isOnSale": true,
+      "discount": 13,
+      "tags": ["laptop", "ultrabook", "i7", "4k"],
+      "specifications": {
+        "Processore": "Intel Core i7-1260P",
+        "RAM": "16GB DDR5",
+        "Storage": "512GB NVMe SSD",
+        "Display": "15.6\" 4K IPS",
+        "GPU": "Intel Iris Xe + RTX 3050",
+        "Peso": "1.6kg",
+        "OS": "Windows 11 Pro"
+      }
+    },
+    {
+      "id": "5",
+      "name": "Tablet Android 10.1\"",
+      "price": 399.99,
+      "description": "Tablet versatile per lavoro e intrattenimento con display 2K, 8GB RAM, supporto stylus e tastiera dock opzionale.",
+      "shortDescription": "Android 13, 8GB RAM, schermo 2K, stylus inclusa",
+      "rating": 4.2,
+      "reviews": 94,
+      "category": "tablet",
+      "brand": "TabletPro",
+      "images": [
+        "/placeholder-tablet-1.jpg",
+        "/placeholder-tablet-2.jpg"
+      ],
+      "colors": ["Nero", "Bianco", "Blu Navy"],
+      "features": [
+        "Display 2K 10.1\"",
+        "Android 13",
+        "8GB RAM + 128GB Storage",
+        "Stylus inclusa",
+        "Dock tastiera compatibile",
+        "Batteria 8000mAh"
+      ],
+      "inStock": true,
+      "isNew": true,
+      "isOnSale": false,
+      "tags": ["tablet", "android", "stylus", "2k"],
+      "specifications": {
+        "Display": "10.1\" 2K IPS",
+        "Processore": "Snapdragon 778G",
+        "RAM": "8GB",
+        "Storage": "128GB + microSD",
+        "OS": "Android 13",
+        "Batteria": "8000mAh",
+        "Peso": "520g"
+      }
+    },
+    {
+      "id": "6",
+      "name": "Speaker Bluetooth Portatile",
+      "price": 149.99,
+      "description": "Speaker wireless portatile con suono stereo cristallino, 12 ore di autonomia e resistenza all'acqua IPX7.",
+      "shortDescription": "Suono stereo cristallino, 12 ore di autonomia",
+      "rating": 4.4,
+      "reviews": 67,
+      "category": "audio",
+      "brand": "SoundMax",
+      "images": [
+        "/placeholder-speaker-1.jpg",
+        "/placeholder-speaker-2.jpg"
+      ],
+      "colors": ["Nero", "Blu", "Rosso", "Verde"],
+      "features": [
+        "Audio stereo 360°",
+        "12 ore autonomia",
+        "Resistente all'acqua IPX7",
+        "Bluetooth 5.0",
+        "Ricarica USB-C",
+        "Vivavoce integrato"
+      ],
+      "inStock": true,
+      "isNew": false,
+      "isOnSale": false,
+      "tags": ["speaker", "bluetooth", "portatile", "waterproof"],
+      "specifications": {
+        "Potenza": "20W stereo",
+        "Bluetooth": "5.0",
+        "Autonomia": "12 ore",
+        "Ricarica": "USB-C",
+        "Resistenza": "IPX7",
+        "Peso": "650g"
+      }
+    },
+    {
+      "id": "7",
+      "name": "Camera Digitale Mirrorless",
+      "price": 799.99,
+      "originalPrice": 899.99,
+      "description": "Fotocamera mirrorless professionale con sensore APS-C, video 4K, stabilizzazione ottica e obiettivo intercambiabile.",
+      "shortDescription": "Sensore APS-C, 4K video, stabilizzazione ottica",
+      "rating": 4.8,
+      "reviews": 43,
+      "category": "fotografia",
+      "brand": "PhotoPro",
+      "images": [
+        "/placeholder-camera-1.jpg",
+        "/placeholder-camera-2.jpg",
+        "/placeholder-camera-3.jpg"
+      ],
+      "colors": ["Nero", "Argento"],
+      "features": [
+        "Sensore APS-C 24MP",
+        "Video 4K 60fps",
+        "Stabilizzazione 5 assi",
+        "Obiettivo 18-55mm incluso",
+        "Touchscreen orientabile",
+        "Wi-Fi + Bluetooth"
+      ],
+      "inStock": true,
+      "isNew": false,
+      "isOnSale": true,
+      "discount": 11,
+      "tags": ["camera", "mirrorless", "4k", "photography"],
+      "specifications": {
+        "Sensore": "APS-C 24MP",
+        "Video": "4K 60fps",
+        "ISO": "100-25600",
+        "Display": "3\" touchscreen",
+        "Stabilizzazione": "5 assi",
+        "Obiettivo": "18-55mm f/3.5-5.6"
+      }
+    },
+    {
+      "id": "8",
+      "name": "Gaming Mouse RGB",
+      "price": 79.99,
+      "description": "Mouse gaming professionale con sensore ottico 16000 DPI, illuminazione RGB personalizzabile e 8 pulsanti programmabili.",
+      "shortDescription": "16000 DPI, illuminazione RGB personalizzabile",
+      "rating": 4.5,
+      "reviews": 128,
+      "category": "gaming",
+      "brand": "GameGear",
+      "images": [
+        "/placeholder-mouse-1.jpg",
+        "/placeholder-mouse-2.jpg"
+      ],
+      "colors": ["Nero"],
+      "features": [
+        "Sensore ottico 16000 DPI",
+        "8 pulsanti programmabili",
+        "RGB 16.8M colori",
+        "Software personalizzazione",
+        "Polling rate 1000Hz",
+        "Design ergonomico"
+      ],
+      "inStock": true,
+      "isNew": false,
+      "isOnSale": false,
+      "tags": ["mouse", "gaming", "rgb", "dpi"],
+      "specifications": {
+        "Sensore": "Ottico 16000 DPI",
+        "Pulsanti": "8 programmabili",
+        "Polling": "1000Hz",
+        "RGB": "16.8M colori",
+        "Connessione": "USB 2.0",
+        "Peso": "95g"
+      }
+    },
+    {
+      "id": "9",
+      "name": "Mechanical Keyboard",
+      "price": 129.99,
+      "description": "Tastiera meccanica gaming con switch Cherry MX, retroilluminazione RGB per tasto e layout italiano completo.",
+      "shortDescription": "Switch meccanici, retroilluminazione, layout italiano",
+      "rating": 4.6,
+      "reviews": 85,
+      "category": "gaming",
+      "brand": "GameGear",
+      "images": [
+        "/placeholder-keyboard-1.jpg",
+        "/placeholder-keyboard-2.jpg"
+      ],
+      "colors": ["Nero"],
+      "features": [
+        "Switch Cherry MX Red",
+        "RGB per-key",
+        "Layout italiano",
+        "Rotella volume",
+        "Tasti macro",
+        "Poggiapolsi rimovibile"
+      ],
+      "inStock": true,
+      "isNew": true,
+      "isOnSale": false,
+      "tags": ["keyboard", "mechanical", "gaming", "rgb"],
+      "specifications": {
+        "Switch": "Cherry MX Red",
+        "Layout": "Italiano 105 tasti",
+        "RGB": "Per-key",
+        "Connessione": "USB-C",
+        "Polling": "1000Hz",
+        "Materiale": "Alluminio + ABS"
+      }
+    },
+    {
+      "id": "10",
+      "name": "Webcam HD 1080p",
+      "price": 89.99,
+      "description": "Webcam professionale Full HD 1080p con auto-focus, microfono stereo integrato e compatibilità universale PC/Mac.",
+      "shortDescription": "Auto-focus, microfono integrato, compatibile PC/Mac",
+      "rating": 4.3,
+      "reviews": 156,
+      "category": "computer",
+      "brand": "StreamCam",
+      "images": [
+        "/placeholder-webcam-1.jpg",
+        "/placeholder-webcam-2.jpg"
+      ],
+      "colors": ["Nero"],
+      "features": [
+        "Full HD 1080p 30fps",
+        "Auto-focus automatico",
+        "Microfono stereo",
+        "Correzione luce automatica",
+        "Clip universale",
+        "Plug & play"
+      ],
+      "inStock": true,
+      "isNew": false,
+      "isOnSale": false,
+      "tags": ["webcam", "1080p", "streaming", "videochat"],
+      "specifications": {
+        "Risoluzione": "1920x1080 30fps",
+        "Focus": "Auto-focus",
+        "Microfono": "Stereo integrato",
+        "Campo visivo": "78°",
+        "Connessione": "USB 2.0",
+        "Compatibilità": "Windows/Mac/Linux"
+      }
+    },
+    {
+      "id": "11",
+      "name": "Power Bank 20000mAh",
+      "price": 49.99,
+      "description": "Batteria portatile ad alta capacità con ricarica rapida, display LED e porte multiple per tutti i dispositivi.",
+      "shortDescription": "Ricarica rapida, display LED, porte multiple",
+      "rating": 4.4,
+      "reviews": 234,
+      "category": "accessori",
+      "brand": "PowerMax",
+      "images": [
+        "/placeholder-powerbank-1.jpg",
+        "/placeholder-powerbank-2.jpg"
+      ],
+      "colors": ["Nero", "Bianco"],
+      "features": [
+        "20000mAh capacità",
+        "Ricarica rapida 22.5W",
+        "3 porte output",
+        "Display LED percentuale",
+        "Sicurezza integrata",
+        "Formato compatto"
+      ],
+      "inStock": true,
+      "isNew": false,
+      "isOnSale": false,
+      "tags": ["powerbank", "portable", "fast-charging", "20000mah"],
+      "specifications": {
+        "Capacità": "20000mAh",
+        "Input": "USB-C 18W",
+        "Output": "USB-A x2 + USB-C",
+        "Ricarica rapida": "22.5W",
+        "Display": "LED digitale",
+        "Peso": "420g"
+      }
+    },
+    {
+      "id": "12",
+      "name": "Caricatore Wireless Fast Charge",
+      "price": 39.99,
+      "description": "Caricabatterie wireless con ricarica rapida 15W, design elegante e compatibilità universale Qi-certified.",
+      "shortDescription": "Qi-certified, ricarica rapida 15W, design elegante",
+      "rating": 4.2,
+      "reviews": 167,
+      "category": "accessori",
+      "brand": "PowerMax",
+      "images": [
+        "/placeholder-wireless-charger-1.jpg",
+        "/placeholder-wireless-charger-2.jpg"
+      ],
+      "colors": ["Nero", "Bianco"],
+      "features": [
+        "Ricarica wireless 15W",
+        "Qi-certified",
+        "LED indicatore",
+        "Protezione surriscaldamento",
+        "Design ultra-slim",
+        "Cavo USB-C incluso"
+      ],
+      "inStock": true,
+      "isNew": false,
+      "isOnSale": false,
+      "tags": ["wireless", "charger", "qi", "fast-charge"],
+      "specifications": {
+        "Potenza": "15W max",
+        "Compatibilità": "Qi-certified",
+        "Input": "USB-C 9V/2A",
+        "Dimensioni": "100x100x8mm",
+        "Peso": "150g",
+        "Materiali": "Alluminio + Vetro"
+      }
+    }
+  ]
+}

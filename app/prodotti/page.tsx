@@ -1,9 +1,116 @@
+"use client"
+
 import { Button } from '@/components/ui/button'
 import { QuickAddButton } from '@/components/ui/quick-add-button'
 import Link from 'next/link'
-import { Filter, Grid3X3, List } from 'lucide-react'
+import { Filter, Grid3X3, List, Loader2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Product, Category, ProductFilters, ProductSort } from '@/lib/types'
+import { getProducts, getAllCategories } from '@/lib/api'
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [total, setTotal] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
+  
+  // Stati per filtri
+  const [filters, setFilters] = useState<ProductFilters>({})
+  const [sort, setSort] = useState<ProductSort>('relevance')
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 2000 })
+
+  // Carica prodotti e categorie
+  useEffect(() => {
+    loadData()
+  }, [filters, sort, currentPage])
+
+  // Carica categorie al mount
+  useEffect(() => {
+    loadCategories()
+  }, [])
+
+  const loadData = async () => {
+    try {
+      setLoading(true)
+      const result = await getProducts(filters, sort, currentPage, 12)
+      setProducts(result.products)
+      setTotal(result.total)
+      setHasMore(result.hasMore)
+    } catch (err) {
+      setError('Errore nel caricamento dei prodotti')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadCategories = async () => {
+    try {
+      const categoriesData = await getAllCategories()
+      setCategories(categoriesData)
+    } catch (err) {
+      console.error('Errore nel caricamento delle categorie:', err)
+    }
+  }
+
+  const handleCategoryFilter = (categoryId: string) => {
+    setFilters(prev => ({
+      ...prev,
+      category: prev.category === categoryId ? undefined : categoryId
+    }))
+    setCurrentPage(1)
+  }
+
+  const handleBrandFilter = (brand: string) => {
+    const newBrands = selectedBrands.includes(brand)
+      ? selectedBrands.filter(b => b !== brand)
+      : [...selectedBrands, brand]
+    
+    setSelectedBrands(newBrands)
+    setFilters(prev => ({
+      ...prev,
+      brand: newBrands.length > 0 ? newBrands : undefined
+    }))
+    setCurrentPage(1)
+  }
+
+  const handlePriceFilter = (min: number, max: number) => {
+    setPriceRange({ min, max })
+    setFilters(prev => ({
+      ...prev,
+      priceRange: { min, max }
+    }))
+    setCurrentPage(1)
+  }
+
+  const clearFilters = () => {
+    setFilters({})
+    setSelectedBrands([])
+    setPriceRange({ min: 0, max: 2000 })
+    setCurrentPage(1)
+  }
+
+  const handleSortChange = (newSort: ProductSort) => {
+    setSort(newSort)
+    setCurrentPage(1)
+  }
+
+  // Brand unici dai prodotti
+  const availableBrands = ['Apple', 'Samsung', 'TechPro', 'SoundMax', 'GameGear', 'FitTech']
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <p className="text-red-600 mb-4">{error}</p>
+        <Button onClick={loadData}>Riprova</Button>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -11,14 +118,14 @@ export default function ProductsPage() {
         <div>
           <h1 className="text-3xl font-bold mb-2">Tutti i Prodotti</h1>
           <p className="text-muted-foreground">
-            Scopri la nostra intera collezione di prodotti
+            {total > 0 ? `${total} prodotti trovati` : 'Scopri la nostra collezione'}
           </p>
         </div>
         
         <div className="flex items-center space-x-4 mt-4 lg:mt-0">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={clearFilters}>
             <Filter className="h-4 w-4 mr-2" />
-            Filtri
+            Cancella Filtri
           </Button>
           <div className="flex border rounded-md">
             <Button variant="ghost" size="sm" className="rounded-r-none">
@@ -31,38 +138,28 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Filters Sidebar & Products Grid */}
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar Filtri */}
         <aside className="lg:w-64">
           <div className="bg-card p-6 rounded-lg border">
             <h3 className="font-semibold mb-4">Filtri</h3>
             
-            {/* Categorie */}
             <div className="space-y-4">
+              {/* Categorie */}
               <div>
                 <h4 className="font-medium mb-2">Categorie</h4>
                 <div className="space-y-2 text-sm">
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>Elettronica</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>Abbigliamento</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>Casa e Giardino</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>Sport e Tempo Libero</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>Bellezza e Salute</span>
-                  </label>
+                  {categories.map((category) => (
+                    <label key={category.id} className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox" 
+                        className="rounded"
+                        checked={filters.category === category.id}
+                        onChange={() => handleCategoryFilter(category.id)}
+                      />
+                      <span>{category.name} ({category.productCount})</span>
+                    </label>
+                  ))}
                 </div>
               </div>
 
@@ -71,20 +168,44 @@ export default function ProductsPage() {
                 <h4 className="font-medium mb-2">Prezzo</h4>
                 <div className="space-y-2 text-sm">
                   <label className="flex items-center space-x-2">
-                    <input type="radio" name="price" className="rounded" />
+                    <input 
+                      type="radio" 
+                      name="price" 
+                      className="rounded"
+                      checked={priceRange.min === 0 && priceRange.max === 50}
+                      onChange={() => handlePriceFilter(0, 50)}
+                    />
                     <span>Sotto €50</span>
                   </label>
                   <label className="flex items-center space-x-2">
-                    <input type="radio" name="price" className="rounded" />
+                    <input 
+                      type="radio" 
+                      name="price" 
+                      className="rounded"
+                      checked={priceRange.min === 50 && priceRange.max === 100}
+                      onChange={() => handlePriceFilter(50, 100)}
+                    />
                     <span>€50 - €100</span>
                   </label>
                   <label className="flex items-center space-x-2">
-                    <input type="radio" name="price" className="rounded" />
-                    <span>€100 - €200</span>
+                    <input 
+                      type="radio" 
+                      name="price" 
+                      className="rounded"
+                      checked={priceRange.min === 100 && priceRange.max === 500}
+                      onChange={() => handlePriceFilter(100, 500)}
+                    />
+                    <span>€100 - €500</span>
                   </label>
                   <label className="flex items-center space-x-2">
-                    <input type="radio" name="price" className="rounded" />
-                    <span>Oltre €200</span>
+                    <input 
+                      type="radio" 
+                      name="price" 
+                      className="rounded"
+                      checked={priceRange.min === 500 && priceRange.max === 2000}
+                      onChange={() => handlePriceFilter(500, 2000)}
+                    />
+                    <span>Oltre €500</span>
                   </label>
                 </div>
               </div>
@@ -93,71 +214,51 @@ export default function ProductsPage() {
               <div>
                 <h4 className="font-medium mb-2">Brand</h4>
                 <div className="space-y-2 text-sm">
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>Apple</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>Samsung</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>Nike</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>Adidas</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>Sony</span>
-                  </label>
+                  {availableBrands.map((brand) => (
+                    <label key={brand} className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox" 
+                        className="rounded"
+                        checked={selectedBrands.includes(brand)}
+                        onChange={() => handleBrandFilter(brand)}
+                      />
+                      <span>{brand}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
 
-              {/* Rating */}
+              {/* Altri filtri */}
               <div>
-                <h4 className="font-medium mb-2">Valutazione</h4>
+                <h4 className="font-medium mb-2">Altri</h4>
                 <div className="space-y-2 text-sm">
                   <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>⭐⭐⭐⭐⭐ 5 stelle</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>⭐⭐⭐⭐ 4+ stelle</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>⭐⭐⭐ 3+ stelle</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Disponibilità */}
-              <div>
-                <h4 className="font-medium mb-2">Disponibilità</h4>
-                <div className="space-y-2 text-sm">
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
+                    <input 
+                      type="checkbox" 
+                      className="rounded"
+                      checked={filters.inStock === true}
+                      onChange={(e) => setFilters(prev => ({
+                        ...prev,
+                        inStock: e.target.checked ? true : undefined
+                      }))}
+                    />
                     <span>Disponibile subito</span>
                   </label>
                   <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span>Spedizione gratuita</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
+                    <input 
+                      type="checkbox" 
+                      className="rounded"
+                      checked={filters.isOnSale === true}
+                      onChange={(e) => setFilters(prev => ({
+                        ...prev,
+                        isOnSale: e.target.checked ? true : undefined
+                      }))}
+                    />
                     <span>In offerta</span>
                   </label>
                 </div>
               </div>
             </div>
-
-            <Button className="w-full mt-6" variant="outline" size="sm">
-              Cancella Filtri
-            </Button>
           </div>
         </aside>
 
@@ -165,45 +266,49 @@ export default function ProductsPage() {
         <div className="flex-1">
           <div className="flex items-center justify-between mb-6">
             <p className="text-sm text-muted-foreground">
-              Mostrando 12 di 240 prodotti
+              {loading ? 'Caricamento...' : `Mostrando ${products.length} di ${total} prodotti`}
             </p>
-            <select className="border rounded-md px-3 py-2 text-sm bg-background">
-              <option>Ordina per: Rilevanza</option>
-              <option>Prezzo: Dal più basso</option>
-              <option>Prezzo: Dal più alto</option>
-              <option>Più recenti</option>
-              <option>Più venduti</option>
-              <option>Migliori recensioni</option>
+            <select 
+              className="border rounded-md px-3 py-2 text-sm bg-background"
+              value={sort}
+              onChange={(e) => handleSortChange(e.target.value as ProductSort)}
+            >
+              <option value="relevance">Ordina per: Rilevanza</option>
+              <option value="price-asc">Prezzo: Dal più basso</option>
+              <option value="price-desc">Prezzo: Dal più alto</option>
+              <option value="newest">Più recenti</option>
+              <option value="bestselling">Più venduti</option>
+              <option value="rating">Migliori recensioni</option>
             </select>
           </div>
 
+          {/* Loading State */}
+          {loading && (
+            <div className="flex justify-center items-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin" />
+              <span className="ml-2">Caricamento prodotti...</span>
+            </div>
+          )}
+
           {/* Products Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 12 }, (_, i) => {
-              const price = Math.random() * 200 + 20
-              const product = {
-                id: (i + 1).toString(),
-                name: getProductName(i),
-                price: price,
-                image: `/placeholder-image-${i + 1}.jpg`
-              }
-              
-              return (
-                <div key={i + 1} className="group">
-                  <Link href={`/prodotti/${i + 1}`}>
+          {!loading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product) => (
+                <div key={product.id} className="group">
+                  <Link href={`/prodotti/${product.id}`}>
                     <div className="cursor-pointer">
                       <div className="bg-muted rounded-lg aspect-square mb-4 flex items-center justify-center group-hover:bg-muted/80 transition-colors relative overflow-hidden">
-                        <span className="text-muted-foreground">Prodotto {i + 1}</span>
+                        <span className="text-muted-foreground">{product.name}</span>
                         
-                        {/* Badge offerta casuale */}
-                        {Math.random() > 0.7 && (
+                        {/* Badge offerta */}
+                        {product.isOnSale && product.discount && (
                           <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                            -20%
+                            -{product.discount}%
                           </div>
                         )}
                         
-                        {/* Badge nuovo arrivo casuale */}
-                        {Math.random() > 0.8 && (
+                        {/* Badge nuovo */}
+                        {product.isNew && (
                           <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
                             Nuovo
                           </div>
@@ -216,17 +321,17 @@ export default function ProductsPage() {
                         </h3>
                         
                         <p className="text-sm text-muted-foreground line-clamp-2">
-                          {getProductDescription(i)}
+                          {product.shortDescription || product.description.slice(0, 100) + '...'}
                         </p>
                         
                         {/* Rating */}
                         <div className="flex items-center space-x-1">
                           <div className="flex text-yellow-400 text-sm">
-                            {'★'.repeat(Math.floor(Math.random() * 2) + 4)}
-                            {'☆'.repeat(5 - (Math.floor(Math.random() * 2) + 4))}
+                            {'★'.repeat(Math.floor(product.rating))}
+                            {'☆'.repeat(5 - Math.floor(product.rating))}
                           </div>
                           <span className="text-xs text-muted-foreground">
-                            ({Math.floor(Math.random() * 200) + 10})
+                            ({product.reviews})
                           </span>
                         </div>
                       </div>
@@ -238,89 +343,63 @@ export default function ProductsPage() {
                       <span className="font-semibold">
                         €{product.price.toFixed(2)}
                       </span>
-                      {Math.random() > 0.7 && (
+                      {product.originalPrice && product.originalPrice > product.price && (
                         <span className="text-sm text-muted-foreground line-through">
-                          €{(product.price + Math.random() * 50).toFixed(2)}
+                          €{product.originalPrice.toFixed(2)}
                         </span>
                       )}
                     </div>
                     <QuickAddButton 
-                      product={product}
+                      product={{
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.images[0]
+                      }}
                       className="opacity-0 group-hover:opacity-100 transition-opacity"
                     />
                   </div>
                 </div>
-              )
-            })}
-          </div>
+              ))}
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && products.length === 0 && (
+            <div className="text-center py-16">
+              <p className="text-muted-foreground mb-4">Nessun prodotto trovato con i filtri selezionati</p>
+              <Button onClick={clearFilters}>Cancella tutti i filtri</Button>
+            </div>
+          )}
 
           {/* Pagination */}
-          <div className="flex justify-center mt-12">
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" disabled>
-                Precedente
-              </Button>
-              <Button variant="default" size="sm">
-                1
-              </Button>
-              <Button variant="outline" size="sm">
-                2
-              </Button>
-              <Button variant="outline" size="sm">
-                3
-              </Button>
-              <Button variant="outline" size="sm">
-                ...
-              </Button>
-              <Button variant="outline" size="sm">
-                20
-              </Button>
-              <Button variant="outline" size="sm">
-                Successivo
-              </Button>
+          {!loading && products.length > 0 && (
+            <div className="flex justify-center mt-12">
+              <div className="flex items-center space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                  Precedente
+                </Button>
+                <span className="px-4 py-2 text-sm">
+                  Pagina {currentPage}
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  disabled={!hasMore}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                  Successivo
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
   )
-}
-
-// Helper functions per generare nomi e descrizioni prodotti realistici
-function getProductName(index: number): string {
-  const products = [
-    "Smartphone Premium Pro Max",
-    "Cuffie Wireless Noise Cancelling",
-    "Smartwatch Fitness Tracker",
-    "Laptop UltraBook 15.6\"",
-    "Tablet Android 10.1\"",
-    "Speaker Bluetooth Portatile",
-    "Camera Digitale Mirrorless",
-    "Gaming Mouse RGB",
-    "Mechanical Keyboard",
-    "Webcam HD 1080p",
-    "Power Bank 20000mAh",
-    "Caricatore Wireless Fast Charge"
-  ]
-  
-  return products[index % products.length]
-}
-
-function getProductDescription(index: number): string {
-  const descriptions = [
-    "Display OLED 6.7\", processore octa-core, tripla fotocamera con AI",
-    "Audio di qualità superiore con cancellazione attiva del rumore",
-    "Monitor frequenza cardiaca, GPS, resistente all'acqua",
-    "Intel i7, 16GB RAM, SSD 512GB, schermo 4K",
-    "Android 13, 8GB RAM, schermo 2K, stylus inclusa",
-    "Suono stereo cristallino, 12 ore di autonomia",
-    "Sensore APS-C, 4K video, stabilizzazione ottica",
-    "16000 DPI, illuminazione RGB personalizzabile",
-    "Switch meccanici, retroilluminazione, layout italiano",
-    "Auto-focus, microfono integrato, compatibile PC/Mac",
-    "Ricarica rapida, display LED, porte multiple",
-    "Qi-certified, ricarica rapida 15W, design elegante"
-  ]
-  
-  return descriptions[index % descriptions.length]
 }
