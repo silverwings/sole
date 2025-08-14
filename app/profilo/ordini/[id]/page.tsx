@@ -176,8 +176,8 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Errore</h1>
           <p className="text-muted-foreground mb-6">{error || 'Ordine non trovato'}</p>
-          <Link href="/profilo">
-            <Button>Torna al Profilo</Button>
+          <Link href="/profilo?tab=orders">
+            <Button>Torna agli Ordini</Button>
           </Link>
         </div>
       </div>
@@ -188,7 +188,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex items-center mb-8">
-        <Link href="/profilo" className="mr-4">
+        <Link href="/profilo?tab=orders" className="mr-4">
           <Button variant="ghost" size="icon">
             <ArrowLeft className="h-4 w-4" />
           </Button>

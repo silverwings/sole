@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
 import { User, Package, Mail, Phone, MapPin, Calendar, Edit, Eye, Truck, CheckCircle, XCircle, Clock } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface Order {
@@ -21,11 +21,20 @@ interface Order {
 }
 
 export default function ProfilePage() {
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState('profile')
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const { user } = useAuth()
   const router = useRouter()
+
+  // Controlla se c'è un parametro tab nell'URL
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam && (tabParam === 'profile' || tabParam === 'orders')) {
+      setActiveTab(tabParam)
+    }
+  }, [searchParams])
 
   // Redirect se non loggato
   useEffect(() => {
@@ -52,6 +61,14 @@ export default function ProfilePage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab)
+    // Aggiorna l'URL con il parametro tab senza ricaricare la pagina
+    const newSearchParams = new URLSearchParams(searchParams.toString())
+    newSearchParams.set('tab', tab)
+    router.replace(`/profilo?${newSearchParams.toString()}`, { scroll: false })
   }
 
   const getStatusIcon = (status: string) => {
@@ -118,7 +135,7 @@ export default function ProfilePage() {
       <div className="border-b border-border mb-8">
         <nav className="flex space-x-8">
           <button
-            onClick={() => setActiveTab('profile')}
+            onClick={() => handleTabChange('profile')}
             className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
               activeTab === 'profile'
                 ? 'border-primary text-primary'
@@ -130,7 +147,7 @@ export default function ProfilePage() {
           </button>
           
           <button
-            onClick={() => setActiveTab('orders')}
+            onClick={() => handleTabChange('orders')}
             className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
               activeTab === 'orders'
                 ? 'border-primary text-primary'

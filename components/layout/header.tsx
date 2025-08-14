@@ -167,7 +167,7 @@ export function Header() {
                   
                   <div className="py-1">
                     <Link 
-                      href="/profilo" 
+                      href="/profilo?tab=profile" 
                       className="flex items-center px-3 py-2 text-sm hover:bg-muted transition-colors"
                       onClick={handleUserMenuItemClick}
                     >
@@ -176,7 +176,7 @@ export function Header() {
                     </Link>
                     
                     <Link 
-                      href="/ordini" 
+                      href="/profilo?tab=orders" 
                       className="flex items-center px-3 py-2 text-sm hover:bg-muted transition-colors"
                       onClick={handleUserMenuItemClick}
                     >
