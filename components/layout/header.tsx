@@ -74,8 +74,6 @@ export function Header() {
   }
 
   const handleLogout = (e?: React.MouseEvent) => {
-    console.log('🔥 Hai cliccato su Esci!')
-    
     if (e) {
       e.preventDefault()
       e.stopPropagation()
@@ -86,9 +84,7 @@ export function Header() {
     
     // Delay piccolo per permettere al menu di chiudersi
     setTimeout(() => {
-      console.log('🔥 Chiamando logout()...')
       logout()
-      console.log('🔥 Logout completato!')
     }, 100)
   }
 
@@ -163,7 +159,7 @@ export function Header() {
               
               {/* User Dropdown */}
               {user && isUserMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-background border rounded-md shadow-lg z-[9999] pointer-events-auto">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-background border rounded-md shadow-lg z-[99999] pointer-events-auto">
                   <div className="p-3 border-b">
                     <p className="font-medium text-sm">Ciao, {user.firstName}!</p>
                     <p className="text-xs text-muted-foreground">{user.email}</p>
@@ -192,14 +188,11 @@ export function Header() {
                     
                     <button 
                       onClick={handleLogout}
-                      onMouseOver={() => console.log('🐭 Mouse over pulsante Esci')}
-                      onMouseDown={() => console.log('🐭 Mouse down su Esci')}
                       type="button"
-                      style={{ backgroundColor: 'red', color: 'white' }}
-                      className="flex items-center w-full px-3 py-2 text-sm hover:bg-muted transition-colors cursor-pointer"
+                      className="flex items-center w-full px-3 py-2 text-sm hover:bg-muted transition-colors text-red-600 cursor-pointer"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
-                      ESCI DEBUG
+                      Esci
                     </button>
                   </div>
                 </div>

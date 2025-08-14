@@ -33,29 +33,29 @@ export default function HomePage() {
   return (
     <div className="space-y-20">
       {/* Hero Section */}
-      <section className="relative py-20 px-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            Benvenuto in{' '}
-            <span className="text-primary">ModernShop</span>
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Scopri la nostra collezione di prodotti selezionati con cura. 
-            Design moderno, qualità superiore, esperienza d'acquisto senza pari.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/prodotti">
-              <Button size="lg" className="w-full sm:w-auto">
-                Esplora Prodotti
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            <Button variant="outline" size="lg" className="w-full sm:w-auto">
-              Scopri di più
-            </Button>
-          </div>
-        </div>
-      </section>
+      <section className="relative py-20 px-4 pointer-events-none">
+  <div className="container mx-auto text-center">
+    <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
+      Benvenuto in{' '}
+      <span className="text-primary">ModernShop</span>
+    </h1>
+    <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+      Scopri la nostra collezione di prodotti selezionati con cura. 
+      Design moderno, qualità superiore, esperienza d'acquisto senza pari.
+    </p>
+    <div className="flex flex-col sm:flex-row gap-4 justify-center pointer-events-auto">
+      <Link href="/prodotti">
+        <Button size="lg" className="w-full sm:w-auto">
+          Esplora Prodotti
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </Link>
+      <Button variant="outline" size="lg" className="w-full sm:w-auto">
+        Scopri di più
+      </Button>
+    </div>
+  </div>
+</section>
 
       {/* Featured Products Section */}
       <section className="py-16 px-4 bg-muted/50">

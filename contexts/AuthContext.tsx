@@ -123,16 +123,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = () => {
-    console.log('🚪 AuthContext: Inizio logout')
-    console.log('🚪 User corrente:', user)
-    
     setUser(null)
-    console.log('🚪 User impostato a null')
-    
     localStorage.removeItem('currentUser')
-    console.log('🚪 localStorage pulito')
-    
-    console.log('🚪 Logout AuthContext completato!')
   }
 
   const updateLastLogin = () => {
