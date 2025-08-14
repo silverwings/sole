@@ -1,0 +1,31 @@
+{
+  "shippingOptions": [
+    {
+      "id": "standard",
+      "name": "Spedizione Standard",
+      "price": 0,
+      "freeThreshold": 50,
+      "description": "3-5 giorni lavorativi",
+      "deliveryTime": "3-5 giorni",
+      "isDefault": true
+    },
+    {
+      "id": "express",
+      "name": "Spedizione Express", 
+      "price": 9.99,
+      "freeThreshold": null,
+      "description": "1-2 giorni lavorativi",
+      "deliveryTime": "1-2 giorni",
+      "isDefault": false
+    },
+    {
+      "id": "next-day",
+      "name": "Consegna Giorno Successivo",
+      "price": 19.99,
+      "freeThreshold": null,
+      "description": "Consegna entro 24h",
+      "deliveryTime": "24 ore",
+      "isDefault": false
+    }
+  ]
+}

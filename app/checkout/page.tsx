@@ -1,11 +1,19 @@
 "use client"
 
 import { Button } from '@/components/ui/button'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CreditCard, Truck, MapPin, User, Lock } from 'lucide-react'
+import { ShippingOption, PaymentMethod } from '@/lib/types'
+import { getShippingOptions, calculateShippingCost, getPaymentMethods } from '@/lib/api'
 
 export default function CheckoutPage() {
   const [step, setStep] = useState(1)
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([])
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
+  const [selectedShipping, setSelectedShipping] = useState<string>('')
+  const [selectedPayment, setSelectedPayment] = useState<string>('')
+  const [loading, setLoading] = useState(true)
+  
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -16,6 +24,41 @@ export default function CheckoutPage() {
     phone: '',
     paymentMethod: 'card'
   })
+
+  // Carica opzioni spedizione e metodi pagamento
+  useEffect(() => {
+    loadCheckoutData()
+  }, [])
+
+  const loadCheckoutData = async () => {
+    try {
+      setLoading(true)
+      
+      const [shippingOptions, paymentMethods] = await Promise.all([
+        getShippingOptions(),
+        getPaymentMethods()
+      ])
+      
+      setShippingOptions(shippingOptions)
+      setPaymentMethods(paymentMethods)
+      
+      // Seleziona opzioni default
+      const defaultShipping = shippingOptions.find(option => option.isDefault)
+      if (defaultShipping) {
+        setSelectedShipping(defaultShipping.id)
+      }
+      
+      const defaultPayment = paymentMethods.find(method => method.isDefault)
+      if (defaultPayment) {
+        setSelectedPayment(defaultPayment.id)
+      }
+      
+    } catch (error) {
+      console.error('Errore nel caricamento dati checkout:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const cartItems = [
     {
@@ -35,7 +78,11 @@ export default function CheckoutPage() {
   ]
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  const shipping = 0 // Free shipping
+  
+  // Calcola costo spedizione dinamico
+  const selectedShippingOption = shippingOptions.find(option => option.id === selectedShipping)
+  const shipping = selectedShippingOption ? calculateShippingCost(subtotal, selectedShippingOption) : 0
+  
   const tax = subtotal * 0.22
   const total = subtotal + shipping + tax
 
@@ -44,6 +91,44 @@ export default function CheckoutPage() {
       ...formData,
       [e.target.name]: e.target.value
     })
+  }
+
+  const handleShippingChange = (shippingId: string) => {
+    setSelectedShipping(shippingId)
+  }
+
+  const handlePaymentChange = (paymentId: string) => {
+    setSelectedPayment(paymentId)
+  }
+
+  // Funzione per ottenere l'icona del metodo di pagamento
+  const getPaymentIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'credit-card':
+        return <CreditCard className="h-4 w-4" />
+      case 'paypal':
+        return <div className="h-4 w-4 bg-blue-600 rounded flex items-center justify-center">
+                 <span className="text-white text-xs font-bold">P</span>
+               </div>
+      case 'apple':
+        return <div className="h-4 w-4 bg-black rounded flex items-center justify-center">
+                 <span className="text-white text-xs">🍎</span>
+               </div>
+      case 'google':
+        return <div className="h-4 w-4 bg-gray-600 rounded flex items-center justify-center">
+                 <span className="text-white text-xs">G</span>
+               </div>
+      case 'bank':
+        return <div className="h-4 w-4 bg-gray-600 rounded flex items-center justify-center">
+                 <span className="text-white text-xs">🏦</span>
+               </div>
+      case 'klarna':
+        return <div className="h-4 w-4 bg-pink-500 rounded flex items-center justify-center">
+                 <span className="text-white text-xs">K</span>
+               </div>
+      default:
+        return <CreditCard className="h-4 w-4" />
+    }
   }
 
   const nextStep = () => {
@@ -55,7 +140,6 @@ export default function CheckoutPage() {
   }
 
   const handleCompleteOrder = () => {
-    // Logic for completing the order
     alert('Ordine completato con successo!')
   }
 
@@ -220,56 +304,49 @@ export default function CheckoutPage() {
                   <h2 className="text-xl font-semibold">Metodo di Spedizione</h2>
                 </div>
                 
-                <div className="space-y-3">
-                  <label className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-                    <input
-                      type="radio"
-                      name="shipping"
-                      value="standard"
-                      defaultChecked
-                      className="text-primary"
-                    />
-                    <div className="flex-1">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">Spedizione Standard</span>
-                        <span className="text-green-600 font-medium">Gratuita</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">3-5 giorni lavorativi</p>
-                    </div>
-                  </label>
-                  
-                  <label className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-                    <input
-                      type="radio"
-                      name="shipping"
-                      value="express"
-                      className="text-primary"
-                    />
-                    <div className="flex-1">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">Spedizione Express</span>
-                        <span className="font-medium">€9.99</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">1-2 giorni lavorativi</p>
-                    </div>
-                  </label>
-                  
-                  <label className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-                    <input
-                      type="radio"
-                      name="shipping"
-                      value="next-day"
-                      className="text-primary"
-                    />
-                    <div className="flex-1">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">Consegna Giorno Successivo</span>
-                        <span className="font-medium">€19.99</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">Consegna entro 24h</p>
-                    </div>
-                  </label>
-                </div>
+                {loading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    <p className="text-muted-foreground mt-2">Caricamento opzioni spedizione...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {shippingOptions.map((option) => {
+                      const cost = calculateShippingCost(subtotal, option)
+                      const isFree = cost === 0
+                      
+                      return (
+                        <label 
+                          key={option.id} 
+                          className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                        >
+                          <input
+                            type="radio"
+                            name="shipping"
+                            value={option.id}
+                            checked={selectedShipping === option.id}
+                            onChange={() => handleShippingChange(option.id)}
+                            className="text-primary"
+                          />
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium">{option.name}</span>
+                              <span className={isFree ? 'text-green-600 font-medium' : 'font-medium'}>
+                                {isFree ? 'Gratuita' : `€${cost.toFixed(2)}`}
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{option.description}</p>
+                            {option.freeThreshold && subtotal < option.freeThreshold && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Gratuita per ordini oltre €{option.freeThreshold}
+                              </p>
+                            )}
+                          </div>
+                        </label>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -283,87 +360,40 @@ export default function CheckoutPage() {
                   <h2 className="text-xl font-semibold">Metodo di Pagamento</h2>
                 </div>
                 
-                <div className="space-y-4">
-                  <label className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="card"
-                      defaultChecked
-                      className="text-primary"
-                    />
-                    <CreditCard className="h-4 w-4" />
-                    <span>Carta di Credito/Debito</span>
-                  </label>
-                  
-                  <div className="pl-7 space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Numero Carta *</label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="1234 5678 9012 3456"
-                        maxLength={19}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Scadenza *</label>
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                          placeholder="MM/AA"
-                          maxLength={5}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">CVV *</label>
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                          placeholder="123"
-                          maxLength={4}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Nome sulla Carta *</label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="Nome Cognome"
-                      />
-                    </div>
+                {loading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    <p className="text-muted-foreground mt-2">Caricamento metodi di pagamento...</p>
                   </div>
-                  
-                  <label className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="paypal"
-                      className="text-primary"
-                    />
-                    <div className="h-4 w-4 bg-blue-600 rounded flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">P</span>
-                    </div>
-                    <span>PayPal</span>
-                  </label>
-                  
-                  <label className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="bank-transfer"
-                      className="text-primary"
-                    />
-                    <div className="h-4 w-4 bg-gray-600 rounded flex items-center justify-center">
-                      <span className="text-white text-xs">🏦</span>
-                    </div>
-                    <span>Bonifico Bancario</span>
-                  </label>
-                </div>
+                ) : (
+                  <div className="space-y-4">
+                    {paymentMethods.map((method) => (
+                      <label 
+                        key={method.id}
+                        className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value={method.id}
+                          checked={selectedPayment === method.id}
+                          onChange={() => handlePaymentChange(method.id)}
+                          className="text-primary"
+                        />
+                        {getPaymentIcon(method.icon)}
+                        <div className="flex-1">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">{method.name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {method.processingTime}
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{method.description}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
 
                 {/* Terms and Conditions */}
                 <div className="mt-6 p-4 bg-muted/30 rounded-lg">
@@ -436,8 +466,17 @@ export default function CheckoutPage() {
               </div>
               
               <div className="flex justify-between">
-                <span>Spedizione</span>
-                <span className="text-green-600">Gratuita</span>
+                <span>
+                  Spedizione
+                  {selectedShippingOption && (
+                    <span className="text-xs text-muted-foreground block">
+                      {selectedShippingOption.name}
+                    </span>
+                  )}
+                </span>
+                <span className={shipping === 0 ? 'text-green-600' : ''}>
+                  {shipping === 0 ? 'Gratuita' : `€${shipping.toFixed(2)}`}
+                </span>
               </div>
               
               <div className="flex justify-between">
@@ -473,7 +512,6 @@ export default function CheckoutPage() {
               </div>
               <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                 <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                <span>Garanzia rimborso</span>
               </div>
             </div>
           </div>

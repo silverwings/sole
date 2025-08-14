@@ -1,5 +1,5 @@
 // File: lib/api.ts
-import { Product, Category, ProductFilters, ProductSort } from './types'
+import { Product, Category, ProductFilters, ProductSort, ShippingOption, PaymentMethod } from './types'
 
 // Simulazione di delay per API realistiche
 const API_DELAY = 300
@@ -173,4 +173,42 @@ export async function getAllCategories(): Promise<Category[]> {
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
   const categories = await getAllCategories()
   return categories.find(c => c.slug === slug) || null
+}
+
+// ==================== SPEDIZIONI ====================
+
+// Ottieni tutte le opzioni di spedizione
+export async function getShippingOptions(): Promise<ShippingOption[]> {
+  const data = await fetchData<{ shippingOptions: ShippingOption[] }>('/data/shipping-options.json')
+  return data.shippingOptions
+}
+
+// Ottieni opzione di spedizione di default
+export async function getDefaultShippingOption(): Promise<ShippingOption | null> {
+  const options = await getShippingOptions()
+  return options.find(option => option.isDefault) || options[0] || null
+}
+
+// Calcola costo spedizione basato su subtotale e opzione selezionata
+export function calculateShippingCost(subtotal: number, shippingOption: ShippingOption): number {
+  // Se ha una soglia per spedizione gratuita e il subtotale la supera
+  if (shippingOption.freeThreshold && subtotal >= shippingOption.freeThreshold) {
+    return 0
+  }
+  
+  return shippingOption.price
+}
+
+// ==================== PAGAMENTI ====================
+
+// Ottieni tutti i metodi di pagamento
+export async function getPaymentMethods(): Promise<PaymentMethod[]> {
+  const data = await fetchData<{ paymentMethods: PaymentMethod[] }>('/data/payment-methods.json')
+  return data.paymentMethods.filter(method => method.enabled)
+}
+
+// Ottieni metodo di pagamento di default
+export async function getDefaultPaymentMethod(): Promise<PaymentMethod | null> {
+  const methods = await getPaymentMethods()
+  return methods.find(method => method.isDefault) || methods[0] || null
 }

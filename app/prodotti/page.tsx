@@ -1,4 +1,3 @@
-// File: app/prodotti/page.tsx
 "use client"
 
 import { Button } from '@/components/ui/button'
@@ -46,9 +45,6 @@ export default function ProductsPage() {
 
   // Inizializza filtri dai parametri URL (solo al primo caricamento)
   useEffect(() => {
-    const urlSearchQuery = searchParams.get('search') || ''
-    const urlCategoryParam = searchParams.get('categoria') || ''
-    
     const newFilters: ProductFilters = {
       // Mantieni SOLO i filtri che non sono controllati dall'URL
       priceRange: filters.priceRange,
@@ -61,9 +57,9 @@ export default function ProductsPage() {
     const newSelectedCategories: string[] = []
     
     // Gestisci categoria dall'URL
-    if (urlCategoryParam) {
-      newSelectedCategories.push(urlCategoryParam)
-      newFilters.categories = [urlCategoryParam]
+    if (categoryParam) {
+      newSelectedCategories.push(categoryParam)
+      newFilters.categories = [categoryParam]
     } else {
       // Se non c'è categoria nell'URL, mantieni le categorie esistenti solo se non stiamo navigando da URL
       if (selectedCategories.length > 0 && !categoryParam) {
@@ -71,15 +67,15 @@ export default function ProductsPage() {
       }
     }
     
-    // Gestisci ricerca dall'URL - SEMPRE aggiorna la ricerca
-    if (urlSearchQuery) {
-      newFilters.search = urlSearchQuery
+    // Gestisci ricerca dall'URL 
+    if (searchQuery) {
+      newFilters.search = searchQuery
     }
     
     // Aggiorna categorie selezionate solo se cambia categoria dall'URL
-    if (urlCategoryParam !== categoryParam) {
-      if (urlCategoryParam) {
-        setSelectedCategories([urlCategoryParam])
+    if (categoryParam !== categoryParam) {
+      if (categoryParam) {
+        setSelectedCategories([categoryParam])
       } else if (!selectedCategories.length) {
         setSelectedCategories([])
       }
@@ -211,28 +207,6 @@ export default function ProductsPage() {
     
     // Forza refresh della pagina per aggiornare searchParams
     window.location.href = url.toString()
-  }
-
-  const updateURL = (params: { categoria?: string, search?: string }) => {
-    const url = new URL(window.location.href)
-    
-    if (params.categoria !== undefined) {
-      if (params.categoria) {
-        url.searchParams.set('categoria', params.categoria)
-      } else {
-        url.searchParams.delete('categoria')
-      }
-    }
-    
-    if (params.search !== undefined) {
-      if (params.search) {
-        url.searchParams.set('search', params.search)
-      } else {
-        url.searchParams.delete('search')
-      }
-    }
-    
-    window.history.pushState({}, '', url.toString())
   }
 
   const handleSortChange = (newSort: ProductSort) => {

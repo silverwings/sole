@@ -1,0 +1,257 @@
+{
+  "orders": [
+    {
+      "id": "ORD-2024-001",
+      "orderNumber": "1001",
+      "userId": "user-001",
+      "status": "delivered",
+      "orderDate": "2024-12-15T14:30:00Z",
+      "deliveryDate": "2024-12-18T10:45:00Z",
+      "items": [
+        {
+          "productId": "1",
+          "productName": "Smartphone Premium Pro Max",
+          "variant": "128GB - Nero",
+          "quantity": 1,
+          "unitPrice": 899.99,
+          "totalPrice": 899.99,
+          "image": "/placeholder-smartphone-1.jpg"
+        },
+        {
+          "productId": "2", 
+          "productName": "Cuffie Wireless Noise Cancelling",
+          "variant": "Nero",
+          "quantity": 1,
+          "unitPrice": 299.99,
+          "totalPrice": 299.99,
+          "image": "/placeholder-headphones-1.jpg"
+        }
+      ],
+      "subtotal": 1199.98,
+      "shipping": {
+        "method": "standard",
+        "name": "Spedizione Standard",
+        "cost": 0,
+        "trackingNumber": "IT1234567890"
+      },
+      "tax": 263.99,
+      "total": 1463.97,
+      "paymentMethod": {
+        "type": "card",
+        "name": "Carta di Credito",
+        "last4": "1234"
+      },
+      "shippingAddress": {
+        "firstName": "Mario",
+        "lastName": "Rossi",
+        "address": "Via Roma 123",
+        "city": "Milano",
+        "zipCode": "20121",
+        "province": "MI",
+        "country": "IT",
+        "phone": "+39 333 123 4567"
+      },
+      "notes": ""
+    },
+    {
+      "id": "ORD-2024-002",
+      "orderNumber": "1002",
+      "userId": "user-002",
+      "status": "shipped",
+      "orderDate": "2024-12-18T09:15:00Z",
+      "shippedDate": "2024-12-19T16:20:00Z",
+      "estimatedDelivery": "2024-12-21T12:00:00Z",
+      "items": [
+        {
+          "productId": "4",
+          "productName": "Laptop UltraBook 15.6\"",
+          "variant": "Intel i7, 16GB RAM, 512GB SSD - Grigio Siderale",
+          "quantity": 1,
+          "unitPrice": 1299.99,
+          "totalPrice": 1299.99,
+          "image": "/placeholder-laptop-1.jpg"
+        }
+      ],
+      "subtotal": 1299.99,
+      "shipping": {
+        "method": "express",
+        "name": "Spedizione Express",
+        "cost": 9.99,
+        "trackingNumber": "IT0987654321"
+      },
+      "tax": 285.99,
+      "total": 1595.97,
+      "paymentMethod": {
+        "type": "paypal",
+        "name": "PayPal",
+        "email": "giulia.verdi@email.com"
+      },
+      "shippingAddress": {
+        "firstName": "Giulia",
+        "lastName": "Verdi",
+        "address": "Corso Venezia 88",
+        "city": "Roma",
+        "zipCode": "00187",
+        "province": "RM",
+        "country": "IT",
+        "phone": "+39 347 987 6543"
+      },
+      "notes": "Consegnare preferibilmente al mattino"
+    },
+    {
+      "id": "ORD-2024-003",
+      "orderNumber": "1003",
+      "userId": "user-003",
+      "status": "processing",
+      "orderDate": "2024-12-19T11:45:00Z",
+      "items": [
+        {
+          "productId": "8",
+          "productName": "Gaming Mouse RGB",
+          "variant": "Nero",
+          "quantity": 1,
+          "unitPrice": 79.99,
+          "totalPrice": 79.99,
+          "image": "/placeholder-mouse-1.jpg"
+        },
+        {
+          "productId": "9",
+          "productName": "Mechanical Keyboard",
+          "variant": "Nero",
+          "quantity": 1,
+          "unitPrice": 129.99,
+          "totalPrice": 129.99,
+          "image": "/placeholder-keyboard-1.jpg"
+        },
+        {
+          "productId": "11",
+          "productName": "Power Bank 20000mAh",
+          "variant": "Nero",
+          "quantity": 2,
+          "unitPrice": 49.99,
+          "totalPrice": 99.98,
+          "image": "/placeholder-powerbank-1.jpg"
+        }
+      ],
+      "subtotal": 309.96,
+      "shipping": {
+        "method": "standard",
+        "name": "Spedizione Standard",
+        "cost": 9.99
+      },
+      "tax": 68.19,
+      "total": 388.14,
+      "paymentMethod": {
+        "type": "card",
+        "name": "Carta di Credito",
+        "last4": "5678"
+      },
+      "shippingAddress": {
+        "firstName": "Luca",
+        "lastName": "Bianchi",
+        "address": "Via Garibaldi 15",
+        "city": "Torino",
+        "zipCode": "10121",
+        "province": "TO",
+        "country": "IT",
+        "phone": "+39 320 555 9876"
+      },
+      "notes": ""
+    },
+    {
+      "id": "ORD-2024-004",
+      "orderNumber": "1004",
+      "userId": "user-001",
+      "status": "cancelled",
+      "orderDate": "2024-12-10T16:20:00Z",
+      "cancelledDate": "2024-12-11T09:30:00Z",
+      "cancelReason": "Richiesta del cliente",
+      "items": [
+        {
+          "productId": "5",
+          "productName": "Tablet Android 10.1\"",
+          "variant": "Nero",
+          "quantity": 1,
+          "unitPrice": 399.99,
+          "totalPrice": 399.99,
+          "image": "/placeholder-tablet-1.jpg"
+        }
+      ],
+      "subtotal": 399.99,
+      "shipping": {
+        "method": "standard",
+        "name": "Spedizione Standard",
+        "cost": 0
+      },
+      "tax": 87.99,
+      "total": 487.98,
+      "paymentMethod": {
+        "type": "card",
+        "name": "Carta di Credito",
+        "last4": "1234"
+      },
+      "shippingAddress": {
+        "firstName": "Mario",
+        "lastName": "Rossi",
+        "address": "Via Brera 45",
+        "city": "Milano",
+        "zipCode": "20121",
+        "province": "MI",
+        "country": "IT",
+        "phone": "+39 02 1234567"
+      },
+      "notes": "Cancellato su richiesta cliente - prodotto non più necessario"
+    },
+    {
+      "id": "ORD-2024-005",
+      "orderNumber": "1005",
+      "userId": "user-002",
+      "status": "pending",
+      "orderDate": "2024-12-20T08:30:00Z",
+      "items": [
+        {
+          "productId": "3",
+          "productName": "Smartwatch Fitness Tracker",
+          "variant": "Rosa",
+          "quantity": 1,
+          "unitPrice": 199.99,
+          "totalPrice": 199.99,
+          "image": "/placeholder-smartwatch-1.jpg"
+        },
+        {
+          "productId": "6",
+          "productName": "Speaker Bluetooth Portatile",
+          "variant": "Blu",
+          "quantity": 1,
+          "unitPrice": 149.99,
+          "totalPrice": 149.99,
+          "image": "/placeholder-speaker-1.jpg"
+        }
+      ],
+      "subtotal": 349.98,
+      "shipping": {
+        "method": "next-day",
+        "name": "Consegna Giorno Successivo", 
+        "cost": 19.99
+      },
+      "tax": 76.99,
+      "total": 446.96,
+      "paymentMethod": {
+        "type": "bank-transfer",
+        "name": "Bonifico Bancario",
+        "reference": "TRANSFER-20241220-001"
+      },
+      "shippingAddress": {
+        "firstName": "Giulia",
+        "lastName": "Verdi",
+        "address": "Corso Venezia 88",
+        "city": "Roma",
+        "zipCode": "00187",
+        "province": "RM",
+        "country": "IT",
+        "phone": "+39 347 987 6543"
+      },
+      "notes": "In attesa di conferma pagamento bonifico"
+    }
+  ]
+}

@@ -1,3 +1,19 @@
+// File: lib/types.ts
+
+// Variante prodotto
+export interface ProductVariant {
+  id: string
+  name: string
+  price: number
+  originalPrice?: number
+  color?: string
+  size?: string
+  storage?: string
+  processor?: string
+  ram?: string
+  inStock: boolean
+}
+
 // Prodotto completo
 export interface Product {
   id: string
@@ -12,6 +28,8 @@ export interface Product {
   brand: string
   images: string[]
   colors: string[]
+  variants?: ProductVariant[]
+  hasVariants?: boolean
   features: string[]
   inStock: boolean
   isNew?: boolean
@@ -19,6 +37,29 @@ export interface Product {
   discount?: number
   tags?: string[]
   specifications?: Record<string, string>
+}
+
+// Opzione di spedizione
+export interface ShippingOption {
+  id: string
+  name: string
+  price: number
+  freeThreshold?: number | null
+  description: string
+  deliveryTime: string
+  isDefault: boolean
+}
+
+// Metodo di pagamento
+export interface PaymentMethod {
+  id: string
+  name: string
+  description: string
+  icon: string
+  isDefault: boolean
+  enabled: boolean
+  provider: string
+  processingTime: string
 }
 
 // Categoria

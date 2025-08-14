@@ -2,27 +2,33 @@
 "use client"
 
 import Link from 'next/link'
-import { ShoppingCart, User, Menu, Search } from 'lucide-react'
+import { ShoppingCart, User, Menu, Search, LogOut, Package, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect, useRef } from 'react'
 import { useCart } from '@/contexts/CartContext'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const { getTotalItems } = useCart()
+  const { user, logout } = useAuth()
   const totalItems = getTotalItems()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const menuRef = useRef<HTMLDivElement>(null)
+  const userMenuRef = useRef<HTMLDivElement>(null)
 
-  // Chiudi menu quando clicchi fuori
+  // Chiudi menu quando clicchi fuori (solo menu mobile, non user menu)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false)
       }
+      // RIMUOVIAMO il click outside per user menu - lo gestiremo diversamente
     }
 
     if (isMenuOpen) {
@@ -32,7 +38,7 @@ export function Header() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [isMenuOpen])
+  }, [isMenuOpen]) // Rimuovi isUserMenuOpen dalle dipendenze
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,6 +56,40 @@ export function Header() {
 
   const clearSearch = () => {
     setSearchQuery('')
+  }
+
+  const handleUserClick = () => {
+    if (user) {
+      setIsUserMenuOpen(!isUserMenuOpen)
+    } else {
+      // Vai alla pagina login con redirect alla pagina corrente
+      const currentPath = pathname
+      router.push(`/login?redirect=${encodeURIComponent(currentPath)}`)
+    }
+  }
+
+  const handleUserMenuItemClick = () => {
+    // Chiudi menu solo per i link, non per logout
+    setIsUserMenuOpen(false)
+  }
+
+  const handleLogout = (e?: React.MouseEvent) => {
+    console.log('🔥 Hai cliccato su Esci!')
+    
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
+    // Chiudi il menu prima per evitare conflitti
+    setIsUserMenuOpen(false)
+    
+    // Delay piccolo per permettere al menu di chiudersi
+    setTimeout(() => {
+      console.log('🔥 Chiamando logout()...')
+      logout()
+      console.log('🔥 Logout completato!')
+    }, 100)
   }
 
   return (
@@ -110,9 +150,62 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="hidden sm:flex">
-              <User className="h-4 w-4" />
-            </Button>
+            {/* User Menu */}
+            <div className="relative" ref={userMenuRef}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="hidden sm:flex"
+                onClick={handleUserClick}
+              >
+                <User className="h-4 w-4" />
+              </Button>
+              
+              {/* User Dropdown */}
+              {user && isUserMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-background border rounded-md shadow-lg z-[9999] pointer-events-auto">
+                  <div className="p-3 border-b">
+                    <p className="font-medium text-sm">Ciao, {user.firstName}!</p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                  </div>
+                  
+                  <div className="py-1">
+                    <Link 
+                      href="/profilo" 
+                      className="flex items-center px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      onClick={handleUserMenuItemClick}
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Il mio Profilo
+                    </Link>
+                    
+                    <Link 
+                      href="/ordini" 
+                      className="flex items-center px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      onClick={handleUserMenuItemClick}
+                    >
+                      <Package className="h-4 w-4 mr-2" />
+                      I miei Ordini
+                    </Link>
+                    
+                    <hr className="my-1" />
+                    
+                    <button 
+                      onClick={handleLogout}
+                      onMouseOver={() => console.log('🐭 Mouse over pulsante Esci')}
+                      onMouseDown={() => console.log('🐭 Mouse down su Esci')}
+                      type="button"
+                      style={{ backgroundColor: 'red', color: 'white' }}
+                      className="flex items-center w-full px-3 py-2 text-sm hover:bg-muted transition-colors cursor-pointer"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      ESCI DEBUG
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <Link href="/carrello">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-4 w-4" />
