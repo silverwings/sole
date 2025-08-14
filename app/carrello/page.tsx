@@ -74,7 +74,7 @@ export default function CartPage() {
                         variant="outline"
                         size="icon"
                         onClick={() => updateQuantity(`${item.id}-${item.color}`, item.quantity - 1)}
-                        disabled={!item.inStock}
+                        disabled={!item.inStock || item.quantity <= 1}
                       >
                         <Minus className="h-4 w-4" />
                       </Button>

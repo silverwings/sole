@@ -1,12 +1,14 @@
+// File: app/prodotti/page.tsx
 "use client"
 
 import { Button } from '@/components/ui/button'
 import { QuickAddButton } from '@/components/ui/quick-add-button'
 import Link from 'next/link'
-import { Filter, Loader2 } from 'lucide-react'
+import { Filter, Loader2, X, ChevronDown, ChevronUp } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Product, Category, ProductFilters, ProductSort } from '@/lib/types'
 import { getProducts, getAllCategories, getAllProducts } from '@/lib/api'
+import { useSearchParams } from 'next/navigation'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -17,28 +19,75 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(false)
   
+  // Ottieni parametri URL
+  const searchParams = useSearchParams()
+  const searchQuery = searchParams.get('search') || ''
+  const categoryParam = searchParams.get('categoria') || ''
+  
   // Stati per filtri
   const [filters, setFilters] = useState<ProductFilters>({})
   const [sort, setSort] = useState<ProductSort>('relevance')
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState({ min: 0, max: 2000 })
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
-  // Carica prodotti quando cambiano filtri, sort o pagina
+  // Hook per mounted state
   useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  // Carica prodotti quando cambiano filtri, sort, pagina o parametri URL
+  useEffect(() => {
+    console.log('Filtri applicati:', filters) // Debug
     loadData()
-  }, [filters, sort, currentPage])
+  }, [filters, sort, currentPage, searchQuery, categoryParam])
 
-  // Leggi parametro categoria dall'URL al mount
+  // Inizializza filtri dai parametri URL (solo al primo caricamento)
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const categoryParam = urlParams.get('categoria')
+    const urlSearchQuery = searchParams.get('search') || ''
+    const urlCategoryParam = searchParams.get('categoria') || ''
     
-    if (categoryParam) {
-      setSelectedCategories([categoryParam])
-      setFilters(prev => ({ ...prev, categories: [categoryParam] }))
+    const newFilters: ProductFilters = {
+      // Mantieni SOLO i filtri che non sono controllati dall'URL
+      priceRange: filters.priceRange,
+      brand: filters.brand,
+      inStock: filters.inStock,
+      isOnSale: filters.isOnSale,
+      rating: filters.rating
     }
-  }, []) // Solo al mount iniziale
+    
+    const newSelectedCategories: string[] = []
+    
+    // Gestisci categoria dall'URL
+    if (urlCategoryParam) {
+      newSelectedCategories.push(urlCategoryParam)
+      newFilters.categories = [urlCategoryParam]
+    } else {
+      // Se non c'è categoria nell'URL, mantieni le categorie esistenti solo se non stiamo navigando da URL
+      if (selectedCategories.length > 0 && !categoryParam) {
+        newFilters.categories = selectedCategories
+      }
+    }
+    
+    // Gestisci ricerca dall'URL - SEMPRE aggiorna la ricerca
+    if (urlSearchQuery) {
+      newFilters.search = urlSearchQuery
+    }
+    
+    // Aggiorna categorie selezionate solo se cambia categoria dall'URL
+    if (urlCategoryParam !== categoryParam) {
+      if (urlCategoryParam) {
+        setSelectedCategories([urlCategoryParam])
+      } else if (!selectedCategories.length) {
+        setSelectedCategories([])
+      }
+    }
+    
+    setFilters(newFilters)
+    setCurrentPage(1)
+  }, [searchQuery, categoryParam])
 
   // Carica categorie al mount
   useEffect(() => {
@@ -62,19 +111,16 @@ export default function ProductsPage() {
 
   const loadCategories = async () => {
     try {
-      // Carica categorie e prodotti
       const [categoriesData, allProducts] = await Promise.all([
         getAllCategories(),
         getAllProducts()
       ])
 
-      // Calcola conteggio prodotti per categoria
       const productCounts = allProducts.reduce((acc, product) => {
         acc[product.category] = (acc[product.category] || 0) + 1
         return acc
       }, {} as Record<string, number>)
 
-      // Aggiungi conteggio alle categorie
       const categoriesWithCount = categoriesData.map(category => ({
         ...category,
         productCount: productCounts[category.id] || 0
@@ -92,11 +138,22 @@ export default function ProductsPage() {
       : [...selectedCategories, categoryId]
     
     setSelectedCategories(newCategories)
+    
+    // Mantieni TUTTI i filtri esistenti, incluso priceRange
     setFilters(prev => ({
       ...prev,
       categories: newCategories.length > 0 ? newCategories : undefined
     }))
     setCurrentPage(1)
+    
+    // Aggiorna URL: solo per categoria singola senza ricerca, altrimenti rimuovi parametro
+    const url = new URL(window.location.href)
+    if (newCategories.length === 1 && !searchQuery) {
+      url.searchParams.set('categoria', newCategories[0])
+    } else {
+      url.searchParams.delete('categoria')
+    }
+    window.history.pushState({}, '', url.toString())
   }
 
   const handleBrandFilter = (brand: string) => {
@@ -105,6 +162,8 @@ export default function ProductsPage() {
       : [...selectedBrands, brand]
     
     setSelectedBrands(newBrands)
+    
+    // Mantieni TUTTI i filtri esistenti, incluso priceRange
     setFilters(prev => ({
       ...prev,
       brand: newBrands.length > 0 ? newBrands : undefined
@@ -122,14 +181,58 @@ export default function ProductsPage() {
   }
 
   const clearFilters = () => {
-    setFilters({})
+    setFilters({ search: searchQuery || undefined }) // Mantieni solo la ricerca
     setSelectedBrands([])
     setSelectedCategories([])
     setPriceRange({ min: 0, max: 2000 })
     setCurrentPage(1)
     
-    // Pulisci anche l'URL dai parametri
-    window.history.pushState({}, '', '/prodotti')
+    // Pulisci URL da tutti i parametri tranne search
+    const url = new URL(window.location.href)
+    url.searchParams.delete('categoria')
+    // Mantieni search se presente
+    if (!searchQuery) {
+      url.searchParams.delete('search')
+    }
+    window.history.pushState({}, '', url.toString())
+  }
+
+  const clearSearch = () => {
+    setFilters(prev => {
+      const newFilters = { ...prev }
+      delete newFilters.search
+      return newFilters
+    })
+    
+    // Aggiorna URL rimuovendo il parametro search
+    const url = new URL(window.location.href)
+    url.searchParams.delete('search')
+    window.history.pushState({}, '', url.toString())
+    
+    // Forza refresh della pagina per aggiornare searchParams
+    window.location.href = url.toString()
+  }
+
+  const updateURL = (params: { categoria?: string, search?: string }) => {
+    const url = new URL(window.location.href)
+    
+    if (params.categoria !== undefined) {
+      if (params.categoria) {
+        url.searchParams.set('categoria', params.categoria)
+      } else {
+        url.searchParams.delete('categoria')
+      }
+    }
+    
+    if (params.search !== undefined) {
+      if (params.search) {
+        url.searchParams.set('search', params.search)
+      } else {
+        url.searchParams.delete('search')
+      }
+    }
+    
+    window.history.pushState({}, '', url.toString())
   }
 
   const handleSortChange = (newSort: ProductSort) => {
@@ -154,17 +257,128 @@ export default function ProductsPage() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Tutti i Prodotti</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            {searchQuery ? `Risultati per "${searchQuery}"` : 'Tutti i Prodotti'}
+          </h1>
           <p className="text-muted-foreground">
-            {total > 0 ? `${total} prodotti trovati` : 'Scopri la nostra collezione'}
+            {total > 0 ? `${total} prodotti trovati` : 'Nessun prodotto trovato'}
           </p>
         </div>
       </div>
 
+      {/* Active Filters */}
+      {(searchQuery || selectedCategories.length > 0 || selectedBrands.length > 0 || 
+        (priceRange.min !== 0 || priceRange.max !== 2000) || filters.inStock || filters.isOnSale) && (
+        <div className="flex flex-wrap items-center gap-2 mb-6 p-4 bg-muted/50 rounded-lg">
+          <span className="text-sm font-medium">Filtri attivi:</span>
+          
+          {searchQuery && (
+            <div className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
+              <span>Ricerca: {searchQuery}</span>
+              <button onClick={clearSearch} className="hover:bg-primary/20 rounded-full p-0.5">
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+          
+          {selectedCategories.map(cat => {
+            const category = categories.find(c => c.id === cat)
+            return (
+              <div key={cat} className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
+                <span>{category?.name || cat}</span>
+                <button onClick={() => handleCategoryFilter(cat)} className="hover:bg-primary/20 rounded-full p-0.5">
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            )
+          })}
+          
+          {selectedBrands.map(brand => (
+            <div key={brand} className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
+              <span>{brand}</span>
+              <button onClick={() => handleBrandFilter(brand)} className="hover:bg-primary/20 rounded-full p-0.5">
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+          
+          {(priceRange.min !== 0 || priceRange.max !== 2000) && (
+            <div className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
+              <span>
+                {priceRange.min === 0 && priceRange.max === 50 && "Sotto €50"}
+                {priceRange.min === 50 && priceRange.max === 100 && "€50 - €100"}
+                {priceRange.min === 100 && priceRange.max === 500 && "€100 - €500"}
+                {priceRange.min === 500 && priceRange.max === 2000 && "Oltre €500"}
+                {/* Debug fallback */}
+                {!(priceRange.min === 0 && priceRange.max === 50) && 
+                 !(priceRange.min === 50 && priceRange.max === 100) && 
+                 !(priceRange.min === 100 && priceRange.max === 500) && 
+                 !(priceRange.min === 500 && priceRange.max === 2000) && 
+                 `€${priceRange.min} - €${priceRange.max}`}
+              </span>
+              <button onClick={() => handlePriceFilter(0, 2000)} className="hover:bg-primary/20 rounded-full p-0.5">
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+          
+          {filters.inStock && (
+            <div className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
+              <span>Disponibile subito</span>
+              <button 
+                onClick={() => setFilters(prev => ({ ...prev, inStock: undefined }))} 
+                className="hover:bg-primary/20 rounded-full p-0.5"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+          
+          {filters.isOnSale && (
+            <div className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
+              <span>In offerta</span>
+              <button 
+                onClick={() => setFilters(prev => ({ ...prev, isOnSale: undefined }))} 
+                className="hover:bg-primary/20 rounded-full p-0.5"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar Filtri */}
         <aside className="lg:w-64">
-          <div className="bg-card p-6 rounded-lg border">
+          {/* Mobile Filter Toggle */}
+          <div className="lg:hidden mb-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+              className="w-full flex items-center justify-between"
+            >
+              <span className="flex items-center">
+                <Filter className="h-4 w-4 mr-2" />
+                Filtri
+                {(selectedCategories.length > 0 || selectedBrands.length > 0) && (
+                  <span className="ml-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+                    {selectedCategories.length + selectedBrands.length}
+                  </span>
+                )}
+              </span>
+              {isFiltersOpen ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+
+          {/* Filter Content */}
+          <div className={`bg-card p-6 rounded-lg border ${
+            !isMounted ? 'hidden lg:block' : (isFiltersOpen ? 'block' : 'hidden lg:block')
+          }`}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold">Filtri</h3>
               <Button variant="outline" size="sm" onClick={clearFilters}>
@@ -295,7 +509,7 @@ export default function ProductsPage() {
         <div className="flex-1">
           <div className="flex items-center justify-between mb-6">
             <p className="text-sm text-muted-foreground">
-              {loading ? 'Caricamento...' : `Mostrando ${products.length} di ${total} prodotti`}
+              {!loading && `Mostrando ${products.length} di ${total} prodotti`}
             </p>
             <select 
               className="border rounded-md px-3 py-2 text-sm bg-background"
@@ -383,7 +597,8 @@ export default function ProductsPage() {
                         id: product.id,
                         name: product.name,
                         price: product.price,
-                        image: product.images[0]
+                        image: product.images[0],
+                        colors: product.colors
                       }}
                       className="opacity-0 group-hover:opacity-100 transition-opacity"
                     />
@@ -396,8 +611,21 @@ export default function ProductsPage() {
           {/* Empty State */}
           {!loading && products.length === 0 && (
             <div className="text-center py-16">
-              <p className="text-muted-foreground mb-4">Nessun prodotto trovato con i filtri selezionati</p>
-              <Button onClick={clearFilters}>Cancella tutti i filtri</Button>
+              <p className="text-muted-foreground mb-4">
+                {searchQuery ? (
+                  selectedCategories.length > 0 ? (
+                    selectedCategories.length === 1 ? (
+                      `Nessun prodotto trovato per "${searchQuery}" in categoria "${categories.find(c => c.id === selectedCategories[0])?.name || selectedCategories[0]}"`
+                    ) : (
+                      `Nessun prodotto trovato per "${searchQuery}" in categorie "${selectedCategories.map(cat => categories.find(c => c.id === cat)?.name || cat).join(', ')}"`
+                    )
+                  ) : (
+                    `Nessun prodotto trovato per "${searchQuery}"`
+                  )
+                ) : (
+                  'Nessun prodotto trovato con i filtri selezionati'
+                )}
+              </p>
             </div>
           )}
 

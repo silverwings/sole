@@ -1,3 +1,4 @@
+// File: lib/api.ts
 import { Product, Category, ProductFilters, ProductSort } from './types'
 
 // Simulazione di delay per API realistiche
@@ -83,13 +84,11 @@ export async function getProducts(
     products = products.filter(p => p.isOnSale)
   }
   
+  // RICERCA: Solo nel titolo del prodotto (name)
   if (filters.search) {
-    const searchTerm = filters.search.toLowerCase()
+    const searchTerm = filters.search.toLowerCase().trim()
     products = products.filter(p => 
-      p.name.toLowerCase().includes(searchTerm) ||
-      p.description.toLowerCase().includes(searchTerm) ||
-      p.brand.toLowerCase().includes(searchTerm) ||
-      p.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
+      p.name.toLowerCase().includes(searchTerm)
     )
   }
   
