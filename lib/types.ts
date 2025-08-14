@@ -29,7 +29,7 @@ export interface Category {
   description?: string
   image?: string
   parentId?: string
-  productCount: number
+  productCount?: number // Opzionale, calcolato dinamicamente
 }
 
 // Prodotto in evidenza (homepage)
@@ -43,7 +43,8 @@ export interface FeaturedProduct {
 
 // Filtri per la ricerca prodotti
 export interface ProductFilters {
-  category?: string
+  category?: string // Per compatibilità con URL singola categoria
+  categories?: string[] // Per selezione multipla
   brand?: string[]
   priceRange?: {
     min: number

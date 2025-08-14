@@ -3,10 +3,10 @@
 import { Button } from '@/components/ui/button'
 import { QuickAddButton } from '@/components/ui/quick-add-button'
 import Link from 'next/link'
-import { Filter, Grid3X3, List, Loader2 } from 'lucide-react'
+import { Filter, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Product, Category, ProductFilters, ProductSort } from '@/lib/types'
-import { getProducts, getAllCategories } from '@/lib/api'
+import { getProducts, getAllCategories, getAllProducts } from '@/lib/api'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -21,6 +21,7 @@ export default function ProductsPage() {
   const [filters, setFilters] = useState<ProductFilters>({})
   const [sort, setSort] = useState<ProductSort>('relevance')
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState({ min: 0, max: 2000 })
 
   // Carica prodotti quando cambiano filtri, sort o pagina
@@ -28,15 +29,16 @@ export default function ProductsPage() {
     loadData()
   }, [filters, sort, currentPage])
 
-  // Leggi parametro categoria dall'URL solo al mount
+  // Leggi parametro categoria dall'URL al mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     const categoryParam = urlParams.get('categoria')
     
     if (categoryParam) {
-      setFilters(prev => ({ ...prev, category: categoryParam }))
+      setSelectedCategories([categoryParam])
+      setFilters(prev => ({ ...prev, categories: [categoryParam] }))
     }
-  }, []) // Solo al mount!
+  }, []) // Solo al mount iniziale
 
   // Carica categorie al mount
   useEffect(() => {
@@ -60,17 +62,39 @@ export default function ProductsPage() {
 
   const loadCategories = async () => {
     try {
-      const categoriesData = await getAllCategories()
-      setCategories(categoriesData)
+      // Carica categorie e prodotti
+      const [categoriesData, allProducts] = await Promise.all([
+        getAllCategories(),
+        getAllProducts()
+      ])
+
+      // Calcola conteggio prodotti per categoria
+      const productCounts = allProducts.reduce((acc, product) => {
+        acc[product.category] = (acc[product.category] || 0) + 1
+        return acc
+      }, {} as Record<string, number>)
+
+      // Aggiungi conteggio alle categorie
+      const categoriesWithCount = categoriesData.map(category => ({
+        ...category,
+        productCount: productCounts[category.id] || 0
+      }))
+
+      setCategories(categoriesWithCount)
     } catch (err) {
       console.error('Errore nel caricamento delle categorie:', err)
     }
   }
 
   const handleCategoryFilter = (categoryId: string) => {
+    const newCategories = selectedCategories.includes(categoryId)
+      ? selectedCategories.filter(c => c !== categoryId)
+      : [...selectedCategories, categoryId]
+    
+    setSelectedCategories(newCategories)
     setFilters(prev => ({
       ...prev,
-      category: prev.category === categoryId ? undefined : categoryId
+      categories: newCategories.length > 0 ? newCategories : undefined
     }))
     setCurrentPage(1)
   }
@@ -100,8 +124,12 @@ export default function ProductsPage() {
   const clearFilters = () => {
     setFilters({})
     setSelectedBrands([])
+    setSelectedCategories([])
     setPriceRange({ min: 0, max: 2000 })
     setCurrentPage(1)
+    
+    // Pulisci anche l'URL dai parametri
+    window.history.pushState({}, '', '/prodotti')
   }
 
   const handleSortChange = (newSort: ProductSort) => {
@@ -131,28 +159,19 @@ export default function ProductsPage() {
             {total > 0 ? `${total} prodotti trovati` : 'Scopri la nostra collezione'}
           </p>
         </div>
-        
-        <div className="flex items-center space-x-4 mt-4 lg:mt-0">
-          <Button variant="outline" size="sm" onClick={clearFilters}>
-            <Filter className="h-4 w-4 mr-2" />
-            Cancella Filtri
-          </Button>
-          <div className="flex border rounded-md">
-            <Button variant="ghost" size="sm" className="rounded-r-none">
-              <Grid3X3 className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm" className="rounded-l-none border-l">
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar Filtri */}
         <aside className="lg:w-64">
           <div className="bg-card p-6 rounded-lg border">
-            <h3 className="font-semibold mb-4">Filtri</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold">Filtri</h3>
+              <Button variant="outline" size="sm" onClick={clearFilters}>
+                <Filter className="h-4 w-4 mr-2" />
+                Cancella
+              </Button>
+            </div>
             
             <div className="space-y-4">
               {/* Categorie */}
@@ -164,7 +183,7 @@ export default function ProductsPage() {
                       <input 
                         type="checkbox" 
                         className="rounded"
-                        checked={filters.category === category.id}
+                        checked={selectedCategories.includes(category.id)}
                         onChange={() => handleCategoryFilter(category.id)}
                       />
                       <span>{category.name} ({category.productCount})</span>

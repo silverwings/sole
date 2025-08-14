@@ -38,19 +38,18 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       setLoading(true)
       setError(null)
       
-      // Prima prova a caricare come prodotto
-      const productData = await getProductById(resolvedParams.id)
+      const [productData, relatedData] = await Promise.all([
+        getProductById(resolvedParams.id),
+        getRelatedProducts(resolvedParams.id, 4)
+      ])
       
-      if (productData) {
-        // È un prodotto
-        const relatedData = await getRelatedProducts(resolvedParams.id, 4)
-        setProduct(productData)
-        setRelatedProducts(relatedData)
-      } else {
-        // Potrebbe essere una categoria, reindirizza
-        window.location.href = `/prodotti?categoria=${resolvedParams.id}`
+      if (!productData) {
+        setError('Prodotto non trovato')
         return
       }
+      
+      setProduct(productData)
+      setRelatedProducts(relatedData)
       
     } catch (err) {
       setError('Errore nel caricamento del prodotto')

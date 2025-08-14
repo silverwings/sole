@@ -53,7 +53,11 @@ export async function getProducts(
   
   // Applica filtri
   if (filters.category) {
+    // Compatibilità con URL singola categoria
     products = products.filter(p => p.category === filters.category)
+  } else if (filters.categories && filters.categories.length > 0) {
+    // Selezione multipla categorie
+    products = products.filter(p => filters.categories!.includes(p.category))
   }
   
   if (filters.brand && filters.brand.length > 0) {
